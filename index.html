@@ -1,17 +1,3 @@
-<!--
-Caribou Data Committee – Governance Workflow Diagram
-Single-file interactive HTML you can host and embed in Notion.
-
-How to use:
-1) Save this as: governance-workflow.html
-2) Host it somewhere public (GitHub Pages / Netlify / Cloudflare Pages)
-3) In Notion: /embed → paste the hosted URL
-
-Interactivity included:
-- Pan + zoom (mouse wheel / trackpad)
-- Click a node to open a details panel
--->
-
 <!doctype html>
 <html lang="en">
 <head>
@@ -19,149 +5,162 @@ Interactivity included:
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Governance Workflow Diagram</title>
 
-  <!-- Mermaid -->
-  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
-  <!-- SVG pan/zoom -->
-  <script src="https://cdn.jsdelivr.net/npm/svg-pan-zoom@3.6.1/dist/svg-pan-zoom.min.js"></script>
-
   <style>
-    :root {
-      --bg: #0b0b10;
-      --panel: #12121a;
-      --text: #f2f2f7;
-      --muted: #b8b8c7;
-      --border: rgba(255,255,255,.12);
-      --shadow: 0 12px 40px rgba(0,0,0,.45);
-      --radius: 14px;
-      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-      --sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+    :root{
+      --bg:#0b0b10;
+      --panel:#12121a;
+      --text:#f2f2f7;
+      --muted:#b8b8c7;
+      --border:rgba(255,255,255,.12);
+      --shadow:0 12px 40px rgba(0,0,0,.45);
+      --radius:14px;
+      --mono:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;
+      --sans:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;
     }
 
-    html, body {
-      height: 100%;
-      margin: 0;
-      background: var(--bg);
-      color: var(--text);
-      font-family: var(--sans);
+    html,body{
+      height:100%;
+      margin:0;
+      background:var(--bg);
+      color:var(--text);
+      font-family:var(--sans);
     }
 
-    .wrap {
-      height: 100%;
-      display: grid;
-      grid-template-columns: 1fr 360px;
-      gap: 12px;
-      padding: 12px;
-      box-sizing: border-box;
+    .wrap{
+      height:100%;
+      display:grid;
+      grid-template-columns:1fr 360px;
+      gap:12px;
+      padding:12px;
+      box-sizing:border-box;
     }
 
-    .stage {
-      position: relative;
-      background: var(--panel);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      overflow: hidden;
-      box-shadow: var(--shadow);
+    .stage{
+      position:relative;
+      background:var(--panel);
+      border:1px solid var(--border);
+      border-radius:var(--radius);
+      overflow:hidden;
+      box-shadow:var(--shadow);
+      min-height:520px;
     }
 
-    .toolbar {
-      position: absolute;
-      top: 10px;
-      left: 10px;
-      display: flex;
-      gap: 8px;
-      z-index: 2;
+    .toolbar{
+      position:absolute;
+      top:10px;
+      left:10px;
+      display:flex;
+      gap:8px;
+      z-index:3;
     }
 
-    .btn {
-      background: rgba(255,255,255,.08);
-      color: var(--text);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 8px 10px;
-      font-size: 12px;
-      cursor: pointer;
-      user-select: none;
+    .btn{
+      background:rgba(255,255,255,.08);
+      color:var(--text);
+      border:1px solid var(--border);
+      border-radius:10px;
+      padding:8px 10px;
+      font-size:12px;
+      cursor:pointer;
+      user-select:none;
     }
-    .btn:hover { background: rgba(255,255,255,.12); }
+    .btn:hover{ background:rgba(255,255,255,.12); }
 
-    .hint {
-      position: absolute;
-      bottom: 10px;
-      left: 10px;
-      font-size: 12px;
-      color: var(--muted);
-      z-index: 2;
-      background: rgba(0,0,0,.18);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 8px 10px;
-      backdrop-filter: blur(6px);
-    }
-
-    .panel {
-      background: var(--panel);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      padding: 14px;
-      overflow: auto;
+    .hint{
+      position:absolute;
+      bottom:10px;
+      left:10px;
+      font-size:12px;
+      color:var(--muted);
+      z-index:3;
+      background:rgba(0,0,0,.18);
+      border:1px solid var(--border);
+      border-radius:10px;
+      padding:8px 10px;
+      backdrop-filter:blur(6px);
     }
 
-    .panel h2 {
-      margin: 0 0 6px 0;
-      font-size: 16px;
-    }
-    .panel .sub {
-      color: var(--muted);
-      font-size: 12px;
-      margin-bottom: 12px;
-      line-height: 1.35;
-    }
-
-    .card {
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 12px;
-      background: rgba(255,255,255,.03);
+    .error{
+      position:absolute;
+      top:56px;
+      left:10px;
+      right:10px;
+      z-index:4;
+      padding:10px 12px;
+      border:1px solid rgba(255,80,80,.35);
+      background:rgba(255,80,80,.10);
+      border-radius:12px;
+      font-size:12px;
+      color:var(--text);
+      display:none;
+      white-space:pre-wrap;
     }
 
-    .label {
-      font-size: 11px;
-      color: var(--muted);
-      text-transform: uppercase;
-      letter-spacing: .08em;
-      margin-bottom: 6px;
+    .panel{
+      background:var(--panel);
+      border:1px solid var(--border);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      padding:14px;
+      overflow:auto;
+      min-height:520px;
     }
 
-    .value {
-      font-size: 13px;
-      line-height: 1.4;
+    .panel h2{
+      margin:0 0 6px 0;
+      font-size:16px;
     }
 
-    .mini {
-      margin-top: 10px;
-      font-family: var(--mono);
-      font-size: 11px;
-      color: var(--muted);
-      white-space: pre-wrap;
-      border-top: 1px dashed var(--border);
-      padding-top: 10px;
+    .panel .sub{
+      color:var(--muted);
+      font-size:12px;
+      margin-bottom:12px;
+      line-height:1.35;
     }
 
-    /* Mermaid theme tweaks */
-    .mermaid {
-      height: 100%;
-      width: 100%;
-    }
-    svg {
-      height: 100%;
-      width: 100%;
+    .card{
+      border:1px solid var(--border);
+      border-radius:12px;
+      padding:12px;
+      background:rgba(255,255,255,.03);
     }
 
-    /* Mobile: stack */
-    @media (max-width: 900px) {
-      .wrap { grid-template-columns: 1fr; }
-      .panel { height: 260px; }
+    .label{
+      font-size:11px;
+      color:var(--muted);
+      text-transform:uppercase;
+      letter-spacing:.08em;
+      margin-bottom:6px;
+    }
+
+    .value{
+      font-size:13px;
+      line-height:1.4;
+    }
+
+    .mini{
+      margin-top:10px;
+      font-family:var(--mono);
+      font-size:11px;
+      color:var(--muted);
+      white-space:pre-wrap;
+      border-top:1px dashed var(--border);
+      padding-top:10px;
+    }
+
+    /* Mermaid container should fill stage */
+    #diagram{
+      width:100%;
+      height:100%;
+    }
+    #diagram svg{
+      width:100%;
+      height:100%;
+    }
+
+    @media (max-width:900px){
+      .wrap{ grid-template-columns:1fr; }
+      .panel{ min-height:260px; }
     }
   </style>
 </head>
@@ -170,13 +169,15 @@ Interactivity included:
   <div class="wrap">
     <div class="stage">
       <div class="toolbar">
-        <button class="btn" id="zoomIn">Zoom +</button>
-        <button class="btn" id="zoomOut">Zoom −</button>
-        <button class="btn" id="reset">Reset</button>
+        <button class="btn" id="zoomIn" type="button">Zoom +</button>
+        <button class="btn" id="zoomOut" type="button">Zoom −</button>
+        <button class="btn" id="reset" type="button">Reset</button>
       </div>
 
       <div class="hint">Tip: Scroll/trackpad to zoom • Click a node to see details</div>
+      <div class="error" id="errBox"></div>
 
+      <!-- Mermaid parses the text inside elements with class="mermaid" -->
       <div class="mermaid" id="diagram">
 flowchart TD
 A[Trigger: new project, new vendor, material change, incident] --> B[Data screening intake]
@@ -204,7 +205,7 @@ classDef step fill:#14141f,stroke:#6d6d97,color:#f2f2f7,stroke-width:1px;
 class C,F,J decision;
 class A,B,D,E,G,H,I,K,L,M,N,O,P step;
 
-%% Click handlers (mapped to JS below)
+%% Click handlers
 click A call showNode("A") "Show details"
 click B call showNode("B") "Show details"
 click C call showNode("C") "Show details"
@@ -224,11 +225,10 @@ click P call showNode("P") "Show details"
       </div>
     </div>
 
-    <aside class="panel" id="sidePanel">
+    <aside class="panel">
       <h2>Governance workflow</h2>
       <div class="sub">
         Click any node in the diagram to see what it means, what gets produced, and who typically leads it.
-        You can edit the text below to match Caribou’s exact internal owners.
       </div>
 
       <div class="card">
@@ -256,157 +256,108 @@ click P call showNode("P") "Show details"
   </div>
 
   <script>
-    // 1) Mermaid init (render as SVG)
-    mermaid.initialize({
-      startOnLoad: true,
-      securityLevel: "loose",   // required for click callbacks
-      theme: "dark"
-    });
-
-    // 2) Node details (edit these freely)
+    /***************
+     * 1) Node details + click handler (must exist BEFORE Mermaid renders)
+     ***************/
     const NODE_INFO = {
-      A: {
-        title: "A — Trigger",
-        purpose: "Start the governance workflow when something changes or risk emerges.",
-        owner: "Chief of Staff (process gatekeeper) + Requesting team lead",
-        outputs: "Logged trigger; assigned intake ticket/reference.",
-        mini: "Examples: new client project, new vendor/tool, material change in scope, security/privacy incident."
-      },
-      B: {
-        title: "B — Data screening intake",
-        purpose: "Capture minimum required info to route the request correctly.",
-        owner: "Chief of Staff (admin) + DPO (oversight)",
-        outputs: "Completed intake form; initial classification (data type, geography, systems, vendor involvement).",
-        mini: "Keep intake lightweight: who/what/why/where/retention; link to project or vendor request."
-      },
-      C: {
-        title: "C — Personal data involved?",
-        purpose: "Decide whether GDPR/people-data controls apply.",
-        owner: "DPO",
-        outputs: "Decision recorded (Yes/No) with rationale.",
-        mini: "If uncertain, treat as personal data until clarified."
-      },
-      D: {
-        title: "D — Record rationale; proceed with standard controls",
-        purpose: "Allow non-personal-data work to proceed while keeping an audit trail.",
-        owner: "IT Lead (controls) + CKO (documentation)",
-        outputs: "Rationale note; baseline security controls applied.",
-        mini: "Standard controls still apply: access control, secure storage, least privilege."
-      },
-      E: {
-        title: "E — Assign accountable role owner",
-        purpose: "Name a single accountable owner for the processing activity.",
-        owner: "Chief of Staff (ensures assignment) + SLT sponsor where needed",
-        outputs: "Accountable owner recorded; delivery team confirmed.",
-        mini: "Usually the project lead or functional owner (HR/BD/M&E)."
-      },
-      F: {
-        title: "F — High risk likely? (DPIA screening)",
-        purpose: "Quickly determine whether a DPIA is required or recommended.",
-        owner: "DPO + IT Lead (technical risk input)",
-        outputs: "DPIA screening result; decision logged.",
-        mini: "Triggers: special category data, vulnerable groups, large-scale processing, new tech, cross-border transfers."
-      },
-      G: {
-        title: "G — Update RoPA; apply baseline controls; proceed",
-        purpose: "For lower-risk processing, ensure records + baseline protections are in place.",
-        owner: "DPO (RoPA) + IT Lead (controls) + Owner from E",
-        outputs: "RoPA updated; baseline controls checklist completed.",
-        mini: "Baseline: lawful basis, retention, access, vendor terms (if any), notices as applicable."
-      },
-      H: {
-        title: "H — Conduct DPIA",
-        purpose: "Assess privacy risks and define mitigations before proceeding.",
-        owner: "DPO (lead) + Project/functional owner",
-        outputs: "Completed DPIA with mitigations and residual risk rating.",
-        mini: "Include: purpose, necessity/proportionality, risks, mitigations, consultation outcomes."
-      },
-      I: {
-        title: "I — DPO provides advice & review",
-        purpose: "Independent review, recommendations, and sign-off guidance.",
-        owner: "DPO",
-        outputs: "Documented advice; required mitigations; sign-off stance.",
-        mini: "DPO should be consulted early and kept independent from operational decision-making."
-      },
-      J: {
-        title: "J — Data Committee decision",
-        purpose: "Approve, conditionally approve, pause/redesign, or escalate.",
-        owner: "Data Committee Chair (Chief of Staff) + committee members",
-        outputs: "Decision record; action list; timeline; escalation if needed.",
-        mini: "Ensure defensibility: minutes + rationale + owners for follow-up."
-      },
-      K: {
-        title: "K — Implement controls, notices, contracts",
-        purpose: "Put technical/operational/legal controls in place.",
-        owner: "IT Lead (security) + DPO (legal) + Owner from E",
-        outputs: "Updated contracts (DPA/SCCs), privacy notices, access controls, SOPs.",
-        mini: "Typical controls: least privilege, encryption, retention, audit logs, vendor clauses."
-      },
-      L: {
-        title: "L — Implement + verify conditions",
-        purpose: "Meet approval conditions and verify they’re done before go-live.",
-        owner: "Chief of Staff (tracking) + IT Lead/DPO (as relevant)",
-        outputs: "Condition checklist completed; evidence stored; go-live confirmation.",
-        mini: "Example conditions: vendor security review, SCCs signed, DPIA mitigations implemented."
-      },
-      M: {
-        title: "M — Redesign processing; re-screen",
-        purpose: "Change the approach to reduce risk (then re-run screening).",
-        owner: "Project/functional owner + IT Lead + DPO",
-        outputs: "Revised design; updated intake/DPIA screening result.",
-        mini: "Common redesigns: reduce data fields, anonymise/pseudonymise, change hosting region, shorten retention."
-      },
-      N: {
-        title: "N — SLT decision & resource allocation",
-        purpose: "Escalate high residual risk or material trade-offs for leadership decision.",
-        owner: "SLT Member (sponsor) + Chief of Staff",
-        outputs: "SLT decision; resourcing approval; acceptance of residual risk if applicable.",
-        mini: "Use when risk is high, mitigation is costly, or timelines/business impact are significant."
-      },
-      O: {
-        title: "O — Monitor, audit, train, client comms as needed",
-        purpose: "Keep controls effective and people informed throughout operations.",
-        owner: "IT Lead (monitoring) + HR (training) + CKO (docs) + DPO (oversight)",
-        outputs: "Audit logs, refresh training, policy updates, client communications packs.",
-        mini: "Build recurring checks into project close-out and vendor renewals."
-      },
-      P: {
-        title: "P — Quarterly metrics & risk reporting to SLT",
-        purpose: "Provide leadership visibility and drive continuous improvement.",
-        owner: "Chief of Staff (reporting) + DPO (risk posture)",
-        outputs: "Quarterly dashboard: RoPA coverage, DPIAs, incidents, vendor status, training completion.",
-        mini: "Use this to prioritise the next quarter’s roadmap and resourcing."
-      }
+      A:{title:"A — Trigger",purpose:"Start the governance workflow when something changes or risk emerges.",owner:"Chief of Staff + Requesting lead",outputs:"Logged trigger; intake created.",mini:"Examples: new client project, new vendor/tool, material change, incident."},
+      B:{title:"B — Data screening intake",purpose:"Capture minimum required info to route the request correctly.",owner:"Chief of Staff + DPO",outputs:"Completed intake; initial classification.",mini:"Who/what/why/where/retention; link to project/vendor request."},
+      C:{title:"C — Personal data involved?",purpose:"Decide whether GDPR/people-data controls apply.",owner:"DPO",outputs:"Decision (Yes/No) recorded with rationale.",mini:"If uncertain, treat as personal data until clarified."},
+      D:{title:"D — Standard controls",purpose:"Proceed with baseline controls and keep an audit trail.",owner:"IT Lead + CKO",outputs:"Rationale note; baseline security controls applied.",mini:"Least privilege, secure storage, access control."},
+      E:{title:"E — Assign accountable owner",purpose:"Name a single accountable owner for the processing activity.",owner:"Chief of Staff",outputs:"Owner recorded; delivery team confirmed.",mini:"Usually the project lead or functional owner (HR/BD/M&E)."},
+      F:{title:"F — High risk likely? (DPIA screening)",purpose:"Determine whether a DPIA is required/recommended.",owner:"DPO + IT Lead",outputs:"DPIA screening result logged.",mini:"Triggers: special category data, vulnerable groups, new tech, large scale, cross-border transfers."},
+      G:{title:"G — Update RoPA & proceed",purpose:"Record the activity and apply baseline protections.",owner:"DPO + IT Lead + Owner",outputs:"RoPA updated; baseline controls checklist completed.",mini:"Lawful basis, retention, access, vendor terms, notices."},
+      H:{title:"H — Conduct DPIA",purpose:"Assess privacy risks and define mitigations before proceeding.",owner:"DPO + Owner",outputs:"Completed DPIA with mitigations and residual risk.",mini:"Purpose, necessity/proportionality, risks, mitigations, consultation."},
+      I:{title:"I — DPO provides advice & review",purpose:"Independent advice and review.",owner:"DPO",outputs:"Documented advice and required mitigations.",mini:"Consult early; maintain independence."},
+      J:{title:"J — Data Committee decision",purpose:"Approve, approve with conditions, pause/redesign, or escalate.",owner:"Data Committee (Chair: Chief of Staff)",outputs:"Decision record; action list; owners and timeline.",mini:"Minutes + rationale + follow-up tracking."},
+      K:{title:"K — Implement controls, notices, contracts",purpose:"Put technical/operational/legal controls in place.",owner:"IT Lead + DPO + Owner",outputs:"DPAs/SCCs, notices, access controls, SOPs.",mini:"Least privilege, encryption, audit logs, retention controls."},
+      L:{title:"L — Implement + verify conditions",purpose:"Meet approval conditions and verify before go-live.",owner:"Chief of Staff + IT/DPO",outputs:"Condition checklist completed; evidence stored.",mini:"Examples: vendor security review, SCCs signed, DPIA mitigations implemented."},
+      M:{title:"M — Redesign processing; re-screen",purpose:"Change approach to reduce risk, then re-screen.",owner:"Owner + IT Lead + DPO",outputs:"Revised design; updated screening/DPIA.",mini:"Reduce fields, anonymise/pseudonymise, change hosting region, shorten retention."},
+      N:{title:"N — SLT decision & resourcing",purpose:"Escalate high residual risk/material trade-offs for leadership decision.",owner:"SLT sponsor + Chief of Staff",outputs:"SLT decision; resource allocation; risk acceptance if applicable.",mini:"Use when mitigation cost/timeline/impact is significant."},
+      O:{title:"O — Monitor, audit, train, client comms",purpose:"Ongoing monitoring, audits, training and client comms as needed.",owner:"IT + HR + CKO + DPO",outputs:"Audit logs, training refresh, policy updates, comms packs.",mini:"Build checks into renewals and project close-out."},
+      P:{title:"P — Quarterly metrics & risk reporting",purpose:"Report metrics and risk posture to SLT.",owner:"Chief of Staff + DPO",outputs:"Quarterly dashboard: RoPA, DPIAs, incidents, vendors, training.",mini:"Use to prioritise roadmap and resourcing."}
     };
 
-    // 3) Click handler called from Mermaid (via `click X call showNode("X")`)
-    function showNode(id) {
-      const info = NODE_INFO[id] || {
-        title: id,
-        purpose: "—",
-        owner: "—",
-        outputs: "—",
-        mini: ""
-      };
-
+    function showNode(id){
+      const info = NODE_INFO[id] || {title:id,purpose:"—",owner:"—",outputs:"—",mini:""};
       document.getElementById("selTitle").textContent = info.title;
       document.getElementById("selPurpose").textContent = info.purpose;
       document.getElementById("selOwner").textContent = info.owner;
       document.getElementById("selOutputs").textContent = info.outputs;
-      document.getElementById("selMini").textContent = info.mini ? info.mini : "";
+      document.getElementById("selMini").textContent = info.mini || "";
     }
-
-    // Expose globally for Mermaid callbacks
     window.showNode = showNode;
 
-    // 4) Pan/zoom once Mermaid finishes rendering
-    // Mermaid renders asynchronously; wait a tick then attach panZoom to the SVG.
-    window.addEventListener("load", () => {
-      setTimeout(() => {
-        const svg = document.querySelector("#diagram svg");
-        if (!svg) return;
+    function showError(msg){
+      const box = document.getElementById("errBox");
+      box.style.display = "block";
+      box.textContent = msg;
+    }
 
-        const panZoom = svgPanZoom(svg, {
+    /***************
+     * 2) CDN loader with fallback (jsDelivr -> unpkg)
+     ***************/
+    function loadScript(src, fallback){
+      return new Promise((resolve, reject) => {
+        const s = document.createElement("script");
+        s.src = src;
+        s.async = true;
+        s.onload = () => resolve();
+        s.onerror = () => {
+          const f = document.createElement("script");
+          f.src = fallback;
+          f.async = true;
+          f.onload = () => resolve();
+          f.onerror = () => reject(new Error("Failed to load: " + src + " and fallback: " + fallback));
+          document.head.appendChild(f);
+        };
+        document.head.appendChild(s);
+      });
+    }
+
+    /***************
+     * 3) Render Mermaid and attach pan/zoom
+     ***************/
+    async function initDiagram(){
+      try{
+        // If scripts already loaded via <script src="..."> tags, skip loading.
+        // But if a network blocks them, window.mermaid might be undefined.
+        if (typeof window.mermaid === "undefined"){
+          await loadScript(
+            "https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js",
+            "https://unpkg.com/mermaid@10/dist/mermaid.min.js"
+          );
+        }
+        if (typeof window.svgPanZoom === "undefined"){
+          await loadScript(
+            "https://cdn.jsdelivr.net/npm/svg-pan-zoom@3.6.1/dist/svg-pan-zoom.min.js",
+            "https://unpkg.com/svg-pan-zoom@3.6.1/dist/svg-pan-zoom.min.js"
+          );
+        }
+
+        // Configure Mermaid (must be after mermaid loads)
+        window.mermaid.initialize({
+          startOnLoad: false,
+          securityLevel: "loose",
+          theme: "dark"
+        });
+
+        // Render ALL .mermaid blocks (most reliable)
+        await window.mermaid.run({ querySelector: ".mermaid" });
+
+        const svg = document.querySelector("#diagram svg");
+        if (!svg){
+          showError(
+            "Mermaid did not produce an SVG.\n\n" +
+            "Most common causes:\n" +
+            "• You are viewing the file in GitHub 'blob' preview (github.com/.../blob/...). Use GitHub Pages (username.github.io).\n" +
+            "• You pasted HTML into Notion as text (Notion won't run scripts). Use /embed with the GitHub Pages URL.\n" +
+            "• Your network blocks CDNs (jsDelivr/unpkg)."
+          );
+          return;
+        }
+
+        const panZoom = window.svgPanZoom(svg, {
           zoomEnabled: true,
           controlIconsEnabled: false,
           fit: true,
@@ -415,18 +366,25 @@ click P call showNode("P") "Show details"
           maxZoom: 6
         });
 
-        // Toolbar controls
         document.getElementById("zoomIn").addEventListener("click", () => panZoom.zoomBy(1.2));
         document.getElementById("zoomOut").addEventListener("click", () => panZoom.zoomBy(0.8));
-        document.getElementById("reset").addEventListener("click", () => panZoom.resetZoom(), false);
-        document.getElementById("reset").addEventListener("click", () => panZoom.center(), false);
-        document.getElementById("reset").addEventListener("click", () => panZoom.fit(), false);
+        document.getElementById("reset").addEventListener("click", () => {
+          panZoom.resetZoom();
+          panZoom.center();
+          panZoom.fit();
+        });
 
-        // Optional: select the first node by default
+        // Default selection
         showNode("A");
-      }, 250);
-    });
+      }catch(e){
+        showError(
+          "Failed to initialize diagram.\n\n" +
+          "Error:\n" + (e && e.message ? e.message : String(e))
+        );
+      }
+    }
+
+    window.addEventListener("load", initDiagram);
   </script>
 </body>
 </html>
-
