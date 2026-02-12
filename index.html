@@ -3,697 +3,365 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Caribou Data Committee — Governance Flow (Interactive, Offline)</title>
+  <title>Governance Workflow Diagram</title>
+
   <style>
     :root{
       --bg:#0b0b10;
-      --panel:#141420;
-      --card:#1b1b2a;
-      --text:#f3f3f6;
-      --muted:#b9b9c7;
-      --border:#2b2b40;
-      --accent:#ff8a2a;
-      --node:#202038;
-      --nodeStroke:#3a3a56;
-      --arrow:#b9b9c7;
-      --arrowDim:#7e7e92;
+      --panel:#12121a;
+      --text:#f2f2f7;
+      --muted:#b8b8c7;
+      --border:rgba(255,255,255,.12);
+      --shadow:0 12px 40px rgba(0,0,0,.45);
+      --radius:14px;
+      --mono:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;
+      --sans:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;
     }
-    *{box-sizing:border-box}
-    body{
-      margin:0;
-      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial;
-      background: radial-gradient(1200px 700px at 20% 0%, #201033 0%, var(--bg) 55%);
-      color:var(--text);
-    }
-    header{
-      padding:16px 18px;
-      border-bottom:1px solid var(--border);
-      display:flex; gap:14px; flex-wrap:wrap; align-items:center; justify-content:space-between;
-    }
-    header h1{ font-size:16px; margin:0; font-weight:750; letter-spacing:.2px; }
-    header .hint{ color:var(--muted); font-size:13px; margin-top:3px; }
 
-    .layout{
+    html,body{ height:100%; margin:0; background:var(--bg); color:var(--text); font-family:var(--sans); }
+
+    .wrap{
+      height:100%;
       display:grid;
-      grid-template-columns: 1.2fr .8fr;
-      gap:14px;
-      padding:14px;
-      min-height: calc(100vh - 66px);
+      grid-template-columns:1fr 360px;
+      gap:12px;
+      padding:12px;
+      box-sizing:border-box;
     }
-    .diagramWrap{
-      background: rgba(20,20,32,.75);
+
+    .stage{
+      position:relative;
+      background:var(--panel);
       border:1px solid var(--border);
-      border-radius:14px;
+      border-radius:var(--radius);
+      overflow:hidden;
+      box-shadow:var(--shadow);
+      min-height:520px;
+    }
+
+    .toolbar{
+      position:absolute;
+      top:10px; left:10px;
+      display:flex; gap:8px;
+      z-index:3;
+    }
+
+    .btn{
+      background:rgba(255,255,255,.08);
+      color:var(--text);
+      border:1px solid var(--border);
+      border-radius:10px;
+      padding:8px 10px;
+      font-size:12px;
+      cursor:pointer;
+      user-select:none;
+    }
+    .btn:hover{ background:rgba(255,255,255,.12); }
+
+    .hint{
+      position:absolute;
+      bottom:10px; left:10px;
+      font-size:12px;
+      color:var(--muted);
+      z-index:3;
+      background:rgba(0,0,0,.18);
+      border:1px solid var(--border);
+      border-radius:10px;
+      padding:8px 10px;
+      backdrop-filter:blur(6px);
+    }
+
+    .status{
+      position:absolute;
+      top:56px; left:10px;
+      z-index:4;
+      padding:8px 10px;
+      border:1px solid var(--border);
+      background:rgba(255,255,255,.06);
+      border-radius:12px;
+      font-size:12px;
+      color:var(--muted);
+    }
+
+    .error{
+      position:absolute;
+      top:56px; left:10px; right:10px;
+      z-index:5;
+      padding:10px 12px;
+      border:1px solid rgba(255,80,80,.35);
+      background:rgba(255,80,80,.10);
+      border-radius:12px;
+      font-size:12px;
+      display:none;
+      white-space:pre-wrap;
+    }
+
+    .panel{
+      background:var(--panel);
+      border:1px solid var(--border);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
       padding:14px;
       overflow:auto;
+      min-height:520px;
     }
-    .panel{
-      background: rgba(20,20,32,.75);
-      border:1px solid var(--border);
-      border-radius:14px;
-      padding:14px;
-      display:flex;
-      flex-direction:column;
-      gap:12px;
-      min-width: 280px;
-    }
+
+    .panel h2{ margin:0 0 6px 0; font-size:16px; }
+    .panel .sub{ color:var(--muted); font-size:12px; margin-bottom:12px; line-height:1.35; }
+
     .card{
-      background: var(--card);
       border:1px solid var(--border);
       border-radius:12px;
       padding:12px;
+      background:rgba(255,255,255,.03);
     }
-    .titleRow{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:10px;
-      margin-bottom:8px;
-    }
-    .badge{
-      font-size:12px;
-      padding:2px 8px;
-      border-radius:999px;
-      border:1px solid var(--border);
+
+    .label{
+      font-size:11px;
       color:var(--muted);
-      white-space:nowrap;
+      text-transform:uppercase;
+      letter-spacing:.08em;
+      margin-bottom:6px;
     }
-    .badge.accent{
-      border-color: rgba(255,138,42,.55);
-      color: #ffe3c8;
-      background: rgba(255,138,42,.12);
-    }
-    .meta{
-      display:grid;
-      grid-template-columns: 1fr;
-      gap:8px;
-      font-size:13px;
+
+    .value{ font-size:13px; line-height:1.4; }
+
+    .mini{
+      margin-top:10px;
+      font-family:var(--mono);
+      font-size:11px;
       color:var(--muted);
-      line-height:1.45;
-    }
-    .meta strong{ color: var(--text); font-weight:700; }
-    ul{ margin:6px 0 0 18px; padding:0; }
-    li{ margin:5px 0; color:var(--text); }
-    .muted{ color:var(--muted); }
-
-    .btnRow{ display:flex; gap:8px; flex-wrap:wrap; }
-    button{
-      appearance:none;
-      border:1px solid var(--border);
-      background: #12121b;
-      color:var(--text);
-      padding:9px 10px;
-      border-radius:10px;
-      font-size:13px;
-      cursor:pointer;
-    }
-    button:hover{ border-color:#3a3a56; }
-    button.primary{
-      border-color: rgba(255,138,42,.55);
-      background: rgba(255,138,42,.12);
+      white-space:pre-wrap;
+      border-top:1px dashed var(--border);
+      padding-top:10px;
     }
 
-    /* SVG */
-    svg{ width: 1250px; height:auto; display:block; }
-    .node { cursor:pointer; }
-    .node rect{
-      fill: var(--node);
-      stroke: var(--nodeStroke);
-      stroke-width: 1.2;
-      rx: 14; ry: 14;
-    }
-    .node text{ fill: var(--text); font-size: 13px; font-weight: 700; }
-    .node .sub{ fill: var(--muted); font-size: 12px; font-weight: 500; }
-    .diamond polygon{
-      fill: #1a1a2a;
-      stroke: var(--nodeStroke);
-      stroke-width: 1.2;
-    }
-    .arrow{
-      stroke: var(--arrow);
-      stroke-width: 1.4;
-      fill: none;
-      marker-end: url(#arrowhead);
-    }
-    .arrow.dim{ stroke: var(--arrowDim); }
-    .edgeLabel{
-      fill: var(--muted);
-      font-size: 12px;
-      font-weight: 700;
-    }
-    .node.selected rect,
-    .node.selected polygon{
-      stroke: rgba(255,138,42,.95);
-      stroke-width: 2.4;
-      filter: drop-shadow(0 0 10px rgba(255,138,42,.25));
-    }
+    #diagramWrap{ width:100%; height:100%; }
+    #diagramWrap svg{ width:100%; height:100%; }
 
-    /* Modal */
-    .modal{
-      display:none;
-      position:fixed;
-      inset:0;
-      background: rgba(0,0,0,.55);
-      backdrop-filter: blur(6px);
-      z-index: 1000;
-      padding: 18px;
-    }
-    .modalContent{
-      max-width: 760px;
-      margin: 40px auto;
-      background: #0f0f18;
-      border:1px solid var(--border);
-      border-radius: 14px;
-      box-shadow: 0 20px 60px rgba(0,0,0,.45);
-      overflow:hidden;
-    }
-    .modalHeader{
-      padding: 12px 14px;
-      border-bottom: 1px solid var(--border);
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:10px;
-    }
-    .modalHeader strong{ font-size: 14px; }
-    .modalBody{
-      padding: 14px;
-      color: var(--muted);
-      font-size: 13px;
-      line-height: 1.55;
-    }
-    .x{
-      cursor:pointer;
-      border:1px solid var(--border);
-      border-radius:10px;
-      padding:6px 10px;
-      background:#12121b;
-      color:var(--text);
-      font-size:13px;
-    }
+    /* Make nodes feel clickable */
+    #diagramWrap svg g.node { cursor:pointer; }
 
-    @media (max-width: 980px){
-      .layout{ grid-template-columns: 1fr; }
-      svg{ width: 1100px; }
+    /* Preserve newlines for Mermaid input */
+    pre.mermaid{ margin:0; padding:0; white-space:pre; }
+
+    @media (max-width:900px){
+      .wrap{ grid-template-columns:1fr; }
+      .panel{ min-height:260px; }
     }
   </style>
+
+  <!-- ✅ Local vendor scripts (NO CDN) -->
+  <script src="./vendor/mermaid.min.js"></script>
+  <script src="./vendor/svg-pan-zoom.min.js"></script>
 </head>
 
 <body>
-<header>
-  <div>
-    <h1>Interactive Data Governance Review Flow</h1>
-    <div class="hint">No Mermaid. No CDN. Works offline. Click nodes A–P.</div>
-  </div>
-  <div class="btnRow">
-    <button class="primary" id="exportSvg">Export SVG</button>
-    <button id="reset">Reset</button>
-  </div>
-</header>
-
-<div class="layout">
-  <div class="diagramWrap">
-    <svg id="flow" viewBox="0 0 1300 1550" role="img" aria-label="Data governance flowchart">
-      <defs>
-        <marker id="arrowhead" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto">
-          <path d="M0,0 L10,4 L0,8 Z" fill="var(--arrow)"></path>
-        </marker>
-      </defs>
-
-      <!-- connectors A->B->C -->
-      <path class="arrow" d="M 245 120 L 245 160"></path>
-      <path class="arrow" d="M 245 255 L 245 300"></path>
-
-      <!-- C to D (No) -->
-      <path class="arrow" d="M 155 370 L 70 370 L 70 460 L 155 460"></path>
-      <text class="edgeLabel" x="90" y="356">No</text>
-
-      <!-- C to E (Yes) -->
-      <path class="arrow" d="M 335 370 L 475 370 L 475 460 L 335 460"></path>
-      <text class="edgeLabel" x="405" y="356">Yes</text>
-
-      <!-- D proceed (dim) -->
-      <path class="arrow dim" d="M 245 545 L 245 600"></path>
-      <text class="edgeLabel" x="262" y="587">Proceed</text>
-
-      <!-- E -> F -->
-      <path class="arrow" d="M 475 545 L 475 600"></path>
-
-      <!-- F -> G (No) -->
-      <path class="arrow" d="M 385 715 L 300 715 L 300 815 L 385 815"></path>
-      <text class="edgeLabel" x="316" y="700">No</text>
-
-      <!-- F -> H (Yes) -->
-      <path class="arrow" d="M 565 715 L 660 715 L 660 815 L 565 815"></path>
-      <text class="edgeLabel" x="590" y="700">Yes</text>
-
-      <!-- H -> I -> J -->
-      <path class="arrow" d="M 660 910 L 660 955"></path>
-      <path class="arrow" d="M 660 1045 L 660 1090"></path>
-
-      <!-- J branches -->
-      <path class="arrow" d="M 660 1210 L 240 1210 L 240 1260"></path>
-      <text class="edgeLabel" x="410" y="1196">Approve</text>
-
-      <path class="arrow" d="M 660 1210 L 520 1210 L 520 1260"></path>
-      <text class="edgeLabel" x="535" y="1196">Approve w/ conditions</text>
-
-      <path class="arrow" d="M 660 1210 L 800 1210 L 800 1260"></path>
-      <text class="edgeLabel" x="740" y="1196">Pause / Redesign</text>
-
-      <path class="arrow" d="M 660 1210 L 1080 1210 L 1080 1260"></path>
-      <text class="edgeLabel" x="1020" y="1196">Escalate</text>
-
-      <!-- K/L/N -> O -->
-      <path class="arrow" d="M 240 1350 L 240 1400 L 660 1400 L 660 1440"></path>
-      <path class="arrow" d="M 520 1350 L 520 1412 L 660 1412"></path>
-      <path class="arrow" d="M 1080 1350 L 1080 1400 L 660 1400"></path>
-
-      <!-- M -> F re-screen loop -->
-      <path class="arrow" d="M 800 1350 L 800 1372 L 475 1372 L 475 815"></path>
-      <text class="edgeLabel" x="600" y="1362">Re-screen</text>
-
-      <!-- O -> P -->
-      <path class="arrow" d="M 660 1535 L 660 1565"></path>
-
-      <!-- Nodes A, B -->
-      <g class="node" data-node="A" transform="translate(75,40)">
-        <rect width="340" height="90"></rect>
-        <text x="16" y="30">A — Trigger</text>
-        <text class="sub" x="16" y="54">New project / vendor / change / incident</text>
-      </g>
-
-      <g class="node" data-node="B" transform="translate(75,170)">
-        <rect width="340" height="85"></rect>
-        <text x="16" y="32">B — Data screening intake</text>
-        <text class="sub" x="16" y="56">Minimum facts for assessment</text>
-      </g>
-
-      <!-- C diamond -->
-      <g class="diamond node" data-node="C" transform="translate(245,315)">
-        <polygon points="0,0 110,60 0,120 -110,60"></polygon>
-        <text x="-88" y="66">C — Personal data</text>
-        <text x="-88" y="86">involved?</text>
-      </g>
-
-      <!-- D, E -->
-      <g class="node" data-node="D" transform="translate(75,430)">
-        <rect width="340" height="110"></rect>
-        <text x="16" y="30">D — Record rationale</text>
-        <text class="sub" x="16" y="54">Proceed with standard controls</text>
-      </g>
-
-      <g class="node" data-node="E" transform="translate(305,430)">
-        <rect width="340" height="110"></rect>
-        <text x="16" y="30">E — Assign accountable owner</text>
-        <text class="sub" x="16" y="54">Single accountable role</text>
-      </g>
-
-      <!-- F diamond -->
-      <g class="diamond node" data-node="F" transform="translate(475,655)">
-        <polygon points="0,0 120,65 0,130 -120,65"></polygon>
-        <text x="-96" y="70">F — High risk likely?</text>
-        <text x="-96" y="90">(DPIA screening)</text>
-      </g>
-
-      <!-- G, H -->
-      <g class="node" data-node="G" transform="translate(205,780)">
-        <rect width="360" height="110"></rect>
-        <text x="16" y="30">G — Update RoPA</text>
-        <text class="sub" x="16" y="54">Baseline controls; proceed</text>
-      </g>
-
-      <g class="node" data-node="H" transform="translate(590,780)">
-        <rect width="300" height="110"></rect>
-        <text x="16" y="30">H — Conduct DPIA</text>
-        <text class="sub" x="16" y="54">Assess risks & mitigations</text>
-      </g>
-
-      <!-- I -->
-      <g class="node" data-node="I" transform="translate(590,935)">
-        <rect width="300" height="85"></rect>
-        <text x="16" y="32">I — DPO advice & review</text>
-        <text class="sub" x="16" y="56">Privacy review and guidance</text>
-      </g>
-
-      <!-- J diamond -->
-      <g class="diamond node" data-node="J" transform="translate(660,1090)">
-        <polygon points="0,0 140,75 0,150 -140,75"></polygon>
-        <text x="-108" y="80">J — Committee decision</text>
-      </g>
-
-      <!-- K, L, M, N -->
-      <g class="node" data-node="K" transform="translate(95,1260)">
-        <rect width="290" height="90"></rect>
-        <text x="16" y="30">K — Implement controls</text>
-        <text class="sub" x="16" y="54">Notices + contracts</text>
-      </g>
-
-      <g class="node" data-node="L" transform="translate(375,1260)">
-        <rect width="290" height="90"></rect>
-        <text x="16" y="30">L — Implement + verify</text>
-        <text class="sub" x="16" y="54">Meet conditions first</text>
-      </g>
-
-      <g class="node" data-node="M" transform="translate(655,1260)">
-        <rect width="290" height="90"></rect>
-        <text x="16" y="30">M — Redesign</text>
-        <text class="sub" x="16" y="54">Re-screen processing</text>
-      </g>
-
-      <g class="node" data-node="N" transform="translate(935,1260)">
-        <rect width="290" height="90"></rect>
-        <text x="16" y="30">N — SLT decision</text>
-        <text class="sub" x="16" y="54">Resources + risk appetite</text>
-      </g>
-
-      <!-- O, P -->
-      <g class="node" data-node="O" transform="translate(430,1440)">
-        <rect width="460" height="95"></rect>
-        <text x="16" y="30">O — Monitor / audit / train / client comms</text>
-        <text class="sub" x="16" y="54">Ongoing oversight</text>
-      </g>
-
-      <g class="node" data-node="P" transform="translate(430,1565)">
-        <rect width="460" height="95"></rect>
-        <text x="16" y="30">P — Quarterly metrics & risk reporting to SLT</text>
-        <text class="sub" x="16" y="54">KPIs, top risks, mitigation progress</text>
-      </g>
-    </svg>
-  </div>
-
-  <aside class="panel">
-    <div class="card">
-      <div class="titleRow">
-        <div><strong id="nodeName">Select a node</strong></div>
-        <span class="badge accent" id="nodeId">—</span>
+  <div class="wrap">
+    <div class="stage">
+      <div class="toolbar">
+        <button class="btn" id="zoomIn" type="button">Zoom +</button>
+        <button class="btn" id="zoomOut" type="button">Zoom −</button>
+        <button class="btn" id="reset" type="button">Reset</button>
       </div>
-      <div class="meta" id="nodeBody">
-        <div class="muted">
-          Click a node in the diagram to view:
-          <ul>
-            <li>What it is</li>
-            <li>Responsible Data Committee role</li>
-            <li>Actions needed</li>
-          </ul>
-        </div>
+
+      <div class="hint">Tip: Scroll/trackpad to zoom • Click any node for details</div>
+      <div class="status" id="status">Loading…</div>
+      <div class="error" id="errBox"></div>
+
+      <div id="diagramWrap">
+        <pre class="mermaid" id="diagram">
+flowchart TD
+
+A["Trigger: new project, new vendor, material change, incident"] --> B["Data screening intake"]
+
+B --> C{"Personal data involved?"}
+
+C -->|No| D["Record rationale and proceed with standard controls"]
+C -->|Yes| E["Assign accountable role owner"]
+
+E --> F{"High risk likely - DPIA screening"}
+
+F -->|No| G["Update RoPA and apply baseline controls"]
+F -->|Yes| H["Conduct DPIA"]
+
+H --> I["DPO provides advice and review"]
+
+I --> J{"Data Committee decision"}
+
+J -->|Approve| K["Implement controls, notices and contracts"]
+J -->|Approve with conditions| L["Implement and verify conditions"]
+J -->|Pause redesign| M["Redesign processing and re-screen"]
+J -->|Escalate| N["SLT decision and resource allocation"]
+
+K --> O["Monitor, audit, train and communicate"]
+L --> O
+M --> F
+N --> O
+
+O --> P["Quarterly metrics and risk reporting to SLT"]
+
+%% Styling
+classDef decision fill:#1b1b26,stroke:#8b8bb8,color:#f2f2f7,stroke-width:1px;
+classDef step fill:#14141f,stroke:#6d6d97,color:#f2f2f7,stroke-width:1px;
+class C,F,J decision;
+class A,B,D,E,G,H,I,K,L,M,N,O,P step;
+        </pre>
       </div>
     </div>
 
-    <div class="card">
-      <div class="titleRow">
-        <strong>Roles reference</strong>
-        <span class="badge">Data Committee</span>
-      </div>
-      <div class="meta">
-        <div><strong>DPO</strong>: Certified Data Protection Officer</div>
-        <div><strong>IT Lead</strong>: Security & systems controls</div>
-        <div><strong>CKO</strong>: Knowledge governance / retention / classification</div>
-        <div><strong>Sr Dir, Measurement & Impact</strong>: Data quality / analytics risk</div>
-        <div><strong>Head of HR</strong>: Training / people data / adoption</div>
-        <div><strong>SLT Member</strong>: Executive risk owner</div>
-        <div><strong>Chief of Staff</strong>: Chair / coordination / reporting</div>
-      </div>
-    </div>
-  </aside>
-</div>
+    <aside class="panel">
+      <h2>Governance workflow</h2>
+      <div class="sub">Click any node to see what it means, what gets produced, and who typically leads it.</div>
 
-<!-- Modal -->
-<div class="modal" id="modal" role="dialog" aria-modal="true" aria-label="Node details">
-  <div class="modalContent">
-    <div class="modalHeader">
-      <strong id="modalTitle">Node details</strong>
-      <button class="x" id="closeModal">Close</button>
-    </div>
-    <div class="modalBody" id="modalBody"></div>
+      <div class="card">
+        <div class="label">Selected step</div>
+        <div class="value" id="selTitle">None selected</div>
+
+        <div style="height:10px"></div>
+
+        <div class="label">Purpose</div>
+        <div class="value" id="selPurpose">—</div>
+
+        <div style="height:10px"></div>
+
+        <div class="label">Primary owner</div>
+        <div class="value" id="selOwner">—</div>
+
+        <div style="height:10px"></div>
+
+        <div class="label">Outputs</div>
+        <div class="value" id="selOutputs">—</div>
+
+        <div class="mini" id="selMini"></div>
+      </div>
+    </aside>
   </div>
-</div>
 
-<script>
-  const NODES = {
-    A: {
-      title: "Trigger",
-      responsible: "Chief of Staff + relevant requester",
-      what: "Start the governance process when there’s a new project, new vendor, material processing change, or incident.",
-      actions: [
-        "Log the trigger (what changed, when, who owns it).",
-        "Open a Data Screening Intake.",
-        "If incident: immediately notify DPO + IT Lead and follow incident process."
-      ]
-    },
-    B: {
-      title: "Data screening intake",
-      responsible: "Chief of Staff (triage) + IT Lead (vendors/systems) + CKO (knowledge assets)",
-      what: "Collect the minimum information needed to assess privacy/security obligations.",
-      actions: [
-        "Identify data categories + subjects.",
-        "List tools/vendors + hosting locations + transfers.",
-        "Capture purpose, expected retention, access groups."
-      ]
-    },
-    C: {
-      title: "Personal data involved?",
-      responsible: "DPO (final call) + Chief of Staff (documentation)",
-      what: "Decide if the activity processes identifiable personal data (direct or indirect identifiers).",
-      actions: [
-        "Confirm identifiers, linkability, and re-identification risk.",
-        "If unsure, treat as 'Yes' until proven otherwise.",
-        "Record decision + rationale."
-      ]
-    },
-    D: {
-      title: "No personal data path",
-      responsible: "IT Lead + CKO + Chief of Staff",
-      what: "If no personal data is involved, apply standard controls and keep the rationale on file.",
-      actions: [
-        "Document why it is non-personal (aggregate/anonymised).",
-        "Apply standard security controls (least privilege, access controls).",
-        "Proceed and re-review if scope changes."
-      ]
-    },
-    E: {
-      title: "Assign accountable owner",
-      responsible: "Chief of Staff (assignment) + DPO (privacy accountability) + SLT Member (if needed)",
-      what: "Assign a single accountable owner for the processing activity (business/project owner).",
-      actions: [
-        "Name the accountable owner and decision rights.",
-        "Confirm stakeholders (IT/HR/CKO) based on data type.",
-        "Set deadlines for screening/DPIA/RoPA updates."
-      ]
-    },
-    F: {
-      title: "High risk likely? (DPIA screening)",
-      responsible: "DPO + IT Lead + Sr Dir (Measurement & Impact)",
-      what: "Quick screening to decide whether a DPIA is needed (higher risk processing).",
-      actions: [
-        "Check high-risk indicators (sensitive data, vulnerable groups, profiling, large scale, new tech, transfers).",
-        "Assign initial risk rating and justification.",
-        "If high risk: initiate DPIA."
-      ]
-    },
-    G: {
-      title: "Update RoPA + baseline controls",
-      responsible: "DPO (RoPA) + IT Lead (controls) + Chief of Staff (tracking)",
-      what: "For lower-risk personal data processing: document in RoPA and proceed with baseline GDPR/security controls.",
-      actions: [
-        "Update RoPA (purpose, basis, categories, recipients, retention, safeguards).",
-        "Apply baseline controls (access, encryption, vendor checks, retention/deletion).",
-        "Brief delivery team on handling rules."
-      ]
-    },
-    H: {
-      title: "Conduct DPIA",
-      responsible: "Accountable owner (author) + DPO (method owner) + IT Lead (technical safeguards)",
-      what: "Assess risks to individuals and define mitigations before processing starts.",
-      actions: [
-        "Map data flows end-to-end; assess necessity/proportionality.",
-        "Identify risks and mitigations; define residual risk.",
-        "Attach supporting evidence (DPAs, TOMs, hosting, sub-processors)."
-      ]
-    },
-    I: {
-      title: "DPO advice & review",
-      responsible: "DPO",
-      what: "DPO reviews DPIA outputs and provides written guidance and required changes.",
-      actions: [
-        "Confirm adequacy of safeguards and compliance alignment.",
-        "Specify required notices, contract clauses, or changes.",
-        "Decide if escalation is needed due to residual risk."
-      ]
-    },
-    J: {
-      title: "Data Committee decision",
-      responsible: "Chief of Staff (facilitation) + all members (decision) + DPO (privacy advice)",
-      what: "Formal decision: approve, approve with conditions, pause/redesign, or escalate.",
-      actions: [
-        "Review DPIA/RoPA + risk summary.",
-        "Agree owners, deadlines, evidence requirements.",
-        "Record decision and rationale in committee log."
-      ]
-    },
-    K: {
-      title: "Approve: implement controls",
-      responsible: "IT Lead + DPO + Chief of Staff",
-      what: "Implement agreed measures and proceed.",
-      actions: [
-        "Implement TOMs, notices, and contracts/DPAs.",
-        "Confirm vendor and access controls are active.",
-        "Begin processing under monitored controls."
-      ]
-    },
-    L: {
-      title: "Approve with conditions",
-      responsible: "Chief of Staff (tracker) + IT Lead/DPO (verification) + Accountable owner",
-      what: "Proceed only after conditions are implemented and verified.",
-      actions: [
-        "Implement required changes.",
-        "Provide evidence and obtain verification sign-off.",
-        "Only then proceed to full processing."
-      ]
-    },
-    M: {
-      title: "Pause / Redesign",
-      responsible: "Accountable owner + DPO + IT Lead + Chief of Staff",
-      what: "Redesign processing to reduce risk; then re-screen.",
-      actions: [
-        "Change scope, minimisation, retention, tooling, access, or transfers.",
-        "Update documentation.",
-        "Re-run high-risk screening (back to F)."
-      ]
-    },
-    N: {
-      title: "Escalate to SLT",
-      responsible: "SLT Member + Chief of Staff + DPO",
-      what: "Escalate when residual risk is high or resourcing/risk appetite decisions are needed.",
-      actions: [
-        "Prepare SLT brief (risk, options, recommendation).",
-        "SLT decides go/no-go and resourcing.",
-        "Record decision and feed into implementation/monitoring."
-      ]
-    },
-    O: {
-      title: "Monitor / audit / train / client comms",
-      responsible: "Head of HR + IT Lead + DPO + Chief of Staff",
-      what: "Ongoing governance to keep controls effective and stakeholders informed.",
-      actions: [
-        "Run access reviews and control testing.",
-        "Deliver workforce training and refreshers.",
-        "Handle client comms where required; feed lessons learned into policy."
-      ]
-    },
-    P: {
-      title: "Quarterly reporting to SLT",
-      responsible: "Chief of Staff + DPO + IT Lead + Head of HR",
-      what: "Regular SLT oversight of metrics, top risks, and mitigation progress.",
-      actions: [
-        "Report intakes, DPIAs, vendor reviews, incidents, training completion.",
-        "Highlight overdue risks/conditions and remediation plans.",
-        "Propose policy/process improvements and resourcing needs."
-      ]
+  <script>
+    const statusEl = document.getElementById("status");
+
+    const NODE_INFO = {
+      A:{title:"A — Trigger",purpose:"Start the governance workflow when something changes or risk emerges.",owner:"Chief of Staff + Requesting lead",outputs:"Logged trigger; intake created.",mini:"Examples: new client project, new vendor/tool, material change, incident."},
+      B:{title:"B — Data screening intake",purpose:"Capture minimum required info to route the request correctly.",owner:"Chief of Staff + DPO",outputs:"Completed intake; initial classification.",mini:"Who/what/why/where/retention; link to project/vendor request."},
+      C:{title:"C — Personal data involved?",purpose:"Decide whether GDPR/people-data controls apply.",owner:"DPO",outputs:"Decision (Yes/No) recorded with rationale.",mini:"If uncertain, treat as personal data until clarified."},
+      D:{title:"D — Standard controls",purpose:"Proceed with baseline controls and keep an audit trail.",owner:"IT Lead + CKO",outputs:"Rationale note; baseline security controls applied.",mini:"Least privilege, secure storage, access control."},
+      E:{title:"E — Assign accountable owner",purpose:"Name a single accountable owner for the processing activity.",owner:"Chief of Staff",outputs:"Owner recorded; delivery team confirmed.",mini:"Usually the project lead or functional owner (HR/BD/M&E)."},
+      F:{title:"F — High risk likely - DPIA screening",purpose:"Determine whether a DPIA is required/recommended.",owner:"DPO + IT Lead",outputs:"DPIA screening result logged.",mini:"Triggers: special category data, vulnerable groups, new tech, large scale, cross-border transfers."},
+      G:{title:"G — Update RoPA and proceed",purpose:"Record the activity and apply baseline protections.",owner:"DPO + IT Lead + Owner",outputs:"RoPA updated; baseline controls checklist completed.",mini:"Lawful basis, retention, access, vendor terms, notices."},
+      H:{title:"H — Conduct DPIA",purpose:"Assess privacy risks and define mitigations before proceeding.",owner:"DPO + Owner",outputs:"Completed DPIA with mitigations and residual risk.",mini:"Purpose, necessity/proportionality, risks, mitigations, consultation."},
+      I:{title:"I — DPO provides advice and review",purpose:"Independent advice and review.",owner:"DPO",outputs:"Documented advice and required mitigations.",mini:"Consult early; maintain independence."},
+      J:{title:"J — Data Committee decision",purpose:"Approve, approve with conditions, pause/redesign, or escalate.",owner:"Data Committee (Chair: Chief of Staff)",outputs:"Decision record; action list; owners and timeline.",mini:"Minutes + rationale + follow-up tracking."},
+      K:{title:"K — Implement controls",purpose:"Put technical/operational/legal controls in place.",owner:"IT Lead + DPO + Owner",outputs:"DPAs/SCCs, notices, access controls, SOPs.",mini:"Least privilege, encryption, audit logs, retention controls."},
+      L:{title:"L — Implement and verify conditions",purpose:"Meet approval conditions and verify before go-live.",owner:"Chief of Staff + IT/DPO",outputs:"Condition checklist completed; evidence stored.",mini:"Examples: vendor security review, SCCs signed, DPIA mitigations implemented."},
+      M:{title:"M — Redesign and re-screen",purpose:"Change approach to reduce risk, then re-screen.",owner:"Owner + IT Lead + DPO",outputs:"Revised design; updated screening/DPIA.",mini:"Reduce fields, anonymise/pseudonymise, change hosting region, shorten retention."},
+      N:{title:"N — SLT decision and resource allocation",purpose:"Escalate high residual risk/material trade-offs for leadership decision.",owner:"SLT sponsor + Chief of Staff",outputs:"SLT decision; resource allocation; risk acceptance if applicable.",mini:"Use when mitigation cost/timeline/impact is significant."},
+      O:{title:"O — Monitor and maintain",purpose:"Ongoing monitoring, audits, training and client comms as needed.",owner:"IT + HR + CKO + DPO",outputs:"Audit logs, training refresh, policy updates, comms packs.",mini:"Build checks into renewals and project close-out."},
+      P:{title:"P — Quarterly reporting",purpose:"Report metrics and risk posture to SLT.",owner:"Chief of Staff + DPO",outputs:"Quarterly dashboard: RoPA, DPIAs, incidents, vendors, training.",mini:"Use to prioritise roadmap and resourcing."}
+    };
+
+    function showNode(id){
+      const info = NODE_INFO[id] || {title:id,purpose:"—",owner:"—",outputs:"—",mini:""};
+      document.getElementById("selTitle").textContent = info.title;
+      document.getElementById("selPurpose").textContent = info.purpose;
+      document.getElementById("selOwner").textContent = info.owner;
+      document.getElementById("selOutputs").textContent = info.outputs;
+      document.getElementById("selMini").textContent = info.mini || "";
     }
-  };
 
-  const nodeName = document.getElementById("nodeName");
-  const nodeId = document.getElementById("nodeId");
-  const nodeBody = document.getElementById("nodeBody");
-  const modal = document.getElementById("modal");
-  const modalTitle = document.getElementById("modalTitle");
-  const modalBody = document.getElementById("modalBody");
-  const closeModalBtn = document.getElementById("closeModal");
+    function showError(msg){
+      statusEl.style.display = "none";
+      const box = document.getElementById("errBox");
+      box.style.display = "block";
+      box.textContent = msg;
+    }
 
-  function escapeHtml(str){
-    return String(str).replace(/[&<>"']/g, s => ({
-      "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
-    }[s]));
-  }
+    function tagSvgNodesWithKeys(svg) {
+      const validKeys = new Set(Object.keys(NODE_INFO));
+      const nodes = Array.from(svg.querySelectorAll("g.node"));
 
-  function renderPanel(id){
-    const n = NODES[id];
-    if(!n) return;
+      nodes.forEach((g) => {
+        const titleEl = g.querySelector("title");
+        const title = titleEl ? titleEl.textContent.trim() : "";
 
-    document.querySelectorAll("#flow .node").forEach(el => el.classList.remove("selected"));
-    const svgNode = document.querySelector(`#flow .node[data-node="${id}"]`);
-    if(svgNode) svgNode.classList.add("selected");
+        const dataId = (g.getAttribute("data-id") || "").trim();
 
-    nodeName.textContent = n.title;
-    nodeId.textContent = id;
+        const rawId = (g.getAttribute("id") || "").trim();
+        const idMatch = rawId.match(/flowchart-([A-Za-z0-9_]+)-/);
 
-    const actions = (n.actions || []).map(a => `<li>${escapeHtml(a)}</li>`).join("");
-    nodeBody.innerHTML = `
-      <div><strong>What this is</strong><br><span class="muted">${escapeHtml(n.what)}</span></div>
-      <div><strong>Responsible</strong><br><span class="muted">${escapeHtml(n.responsible)}</span></div>
-      <div><strong>Actions needed</strong><ul>${actions}</ul></div>
-    `;
-  }
+        const firstText = (g.querySelector("text")?.textContent || "").trim();
 
-  function openModal(id){
-    const n = NODES[id];
-    if(!n) return;
-    modalTitle.textContent = `${id} — ${n.title}`;
-    const actions = (n.actions || []).map(a => `<li>${escapeHtml(a)}</li>`).join("");
-    modalBody.innerHTML = `
-      <div style="margin-bottom:10px;"><strong>What this is</strong><br>${escapeHtml(n.what)}</div>
-      <div style="margin-bottom:10px;"><strong>Responsible</strong><br>${escapeHtml(n.responsible)}</div>
-      <div><strong>Actions needed</strong><ul>${actions}</ul></div>
-    `;
-    modal.style.display = "block";
-  }
+        const candidates = [dataId, title, idMatch ? idMatch[1] : "", firstText].map(s => (s || "").trim());
+        let key = candidates.find(c => validKeys.has(c));
 
-  function closeModal(){
-    modal.style.display = "none";
-  }
+        if (!key && title) {
+          const tok = title.split(/\s|—|-/)[0].trim();
+          if (validKeys.has(tok)) key = tok;
+        }
 
-  // Click handlers
-  document.querySelectorAll("#flow .node").forEach(g => {
-    g.addEventListener("click", () => {
-      const id = g.getAttribute("data-node");
-      if(!id) return;
-      renderPanel(id);
-      openModal(id);
+        if (!key && idMatch && idMatch[1]) {
+          const tok = idMatch[1].charAt(0);
+          if (validKeys.has(tok)) key = tok;
+        }
+
+        if (key) g.dataset.nodekey = key;
+      });
+    }
+
+    function attachUniversalNodeClick(svg) {
+      tagSvgNodesWithKeys(svg);
+      svg.addEventListener("click", (evt) => {
+        const nodeGroup = evt.target.closest("g.node");
+        if (!nodeGroup) return;
+        const key = nodeGroup.dataset.nodekey;
+        if (key && NODE_INFO[key]) showNode(key);
+      });
+    }
+
+    window.addEventListener("load", async () => {
+      try {
+        // If these are undefined, your vendor files are missing or paths are wrong
+        if (typeof mermaid === "undefined") {
+          showError("mermaid is undefined. Check that ./vendor/mermaid.min.js exists and is committed to GitHub Pages.");
+          return;
+        }
+        if (typeof svgPanZoom === "undefined") {
+          showError("svgPanZoom is undefined. Check that ./vendor/svg-pan-zoom.min.js exists and is committed to GitHub Pages.");
+          return;
+        }
+
+        statusEl.textContent = "Rendering…";
+
+        mermaid.initialize({ startOnLoad:false, securityLevel:"loose", theme:"dark" });
+        await mermaid.run({ querySelector: ".mermaid" });
+
+        const svg = document.querySelector("#diagramWrap svg");
+        if(!svg){
+          showError("Mermaid did not produce an SVG. If you are on a GitHub blob/raw link, switch to the GitHub Pages URL.");
+          return;
+        }
+
+        statusEl.style.display = "none";
+
+        const panZoom = svgPanZoom(svg, {
+          zoomEnabled:true,
+          controlIconsEnabled:false,
+          fit:true,
+          center:true,
+          minZoom:0.3,
+          maxZoom:6
+        });
+
+        document.getElementById("zoomIn").addEventListener("click", ()=>panZoom.zoomBy(1.2));
+        document.getElementById("zoomOut").addEventListener("click", ()=>panZoom.zoomBy(0.8));
+        document.getElementById("reset").addEventListener("click", ()=>{ panZoom.resetZoom(); panZoom.center(); panZoom.fit(); });
+
+        attachUniversalNodeClick(svg);
+        showNode("A");
+      } catch (e) {
+        showError("Failed to initialize diagram.\n\nError:\n" + (e && e.message ? e.message : String(e)));
+      }
     });
-  });
-
-  // Modal close
-  closeModalBtn.addEventListener("click", closeModal);
-  modal.addEventListener("click", (e) => {
-    if(e.target === modal) closeModal();
-  });
-  document.addEventListener("keydown", (e) => {
-    if(e.key === "Escape") closeModal();
-  });
-
-  // Reset
-  document.getElementById("reset").addEventListener("click", () => {
-    nodeName.textContent = "Select a node";
-    nodeId.textContent = "—";
-    nodeBody.innerHTML = `<div class="muted">Click a node in the diagram to view details.</div>`;
-    document.querySelectorAll("#flow .node").forEach(el => el.classList.remove("selected"));
-    closeModal();
-  });
-
-  // Export SVG
-  document.getElementById("exportSvg").addEventListener("click", () => {
-    const svg = document.getElementById("flow");
-    const clone = svg.cloneNode(true);
-
-    // Inline computed CSS vars for arrowhead fill fallback (some viewers)
-    clone.querySelectorAll("marker path").forEach(p => p.setAttribute("fill", "#b9b9c7"));
-
-    const serializer = new XMLSerializer();
-    const source = serializer.serializeToString(clone);
-    const blob = new Blob([source], { type: "image/svg+xml;charset=utf-8" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "caribou-data-governance-flow.svg";
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-    URL.revokeObjectURL(url);
-  });
-
-  // Default selection
-  renderPanel("A");
-</script>
+  </script>
 </body>
 </html>
