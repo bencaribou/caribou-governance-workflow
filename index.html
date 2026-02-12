@@ -138,11 +138,8 @@
 
     #diagramWrap{ width:100%; height:100%; }
     #diagramWrap svg{ width:100%; height:100%; }
-
-    /* Make nodes feel clickable */
     #diagramWrap svg g.node { cursor:pointer; }
 
-    /* Preserve newlines for Mermaid input */
     pre.mermaid{ margin:0; padding:0; white-space:pre; }
 
     @media (max-width:900px){
@@ -151,7 +148,7 @@
     }
   </style>
 
-  <!-- ✅ Local vendor scripts (NO CDN) -->
+  <!-- Local vendor scripts -->
   <script src="./vendor/mermaid.min.js"></script>
   <script src="./vendor/svg-pan-zoom.min.js"></script>
 </head>
@@ -172,33 +169,23 @@
       <div id="diagramWrap">
         <pre class="mermaid" id="diagram">
 flowchart TD
-
 A["Trigger: new project, new vendor, material change, incident"] --> B["Data screening intake"]
-
-B --> C{"Personal data involved?"}
-
+B --> C{Personal data involved?}
 C -->|No| D["Record rationale and proceed with standard controls"]
 C -->|Yes| E["Assign accountable role owner"]
-
-E --> F{"High risk likely - DPIA screening"}
-
+E --> F{High risk likely - DPIA screening}
 F -->|No| G["Update RoPA and apply baseline controls"]
 F -->|Yes| H["Conduct DPIA"]
-
 H --> I["DPO provides advice and review"]
-
-I --> J{"Data Committee decision"}
-
+I --> J{Data Committee decision}
 J -->|Approve| K["Implement controls, notices and contracts"]
 J -->|Approve with conditions| L["Implement and verify conditions"]
 J -->|Pause redesign| M["Redesign processing and re-screen"]
 J -->|Escalate| N["SLT decision and resource allocation"]
-
 K --> O["Monitor, audit, train and communicate"]
 L --> O
 M --> F
 N --> O
-
 O --> P["Quarterly metrics and risk reporting to SLT"]
 
 %% Styling
@@ -247,15 +234,15 @@ class A,B,D,E,G,H,I,K,L,M,N,O,P step;
       C:{title:"C — Personal data involved?",purpose:"Decide whether GDPR/people-data controls apply.",owner:"DPO",outputs:"Decision (Yes/No) recorded with rationale.",mini:"If uncertain, treat as personal data until clarified."},
       D:{title:"D — Standard controls",purpose:"Proceed with baseline controls and keep an audit trail.",owner:"IT Lead + CKO",outputs:"Rationale note; baseline security controls applied.",mini:"Least privilege, secure storage, access control."},
       E:{title:"E — Assign accountable owner",purpose:"Name a single accountable owner for the processing activity.",owner:"Chief of Staff",outputs:"Owner recorded; delivery team confirmed.",mini:"Usually the project lead or functional owner (HR/BD/M&E)."},
-      F:{title:"F — High risk likely - DPIA screening",purpose:"Determine whether a DPIA is required/recommended.",owner:"DPO + IT Lead",outputs:"DPIA screening result logged.",mini:"Triggers: special category data, vulnerable groups, new tech, large scale, cross-border transfers."},
+      F:{title:"F — DPIA screening",purpose:"Determine whether a DPIA is required/recommended.",owner:"DPO + IT Lead",outputs:"DPIA screening result logged.",mini:"Triggers: special category data, vulnerable groups, new tech, large scale, cross-border transfers."},
       G:{title:"G — Update RoPA and proceed",purpose:"Record the activity and apply baseline protections.",owner:"DPO + IT Lead + Owner",outputs:"RoPA updated; baseline controls checklist completed.",mini:"Lawful basis, retention, access, vendor terms, notices."},
       H:{title:"H — Conduct DPIA",purpose:"Assess privacy risks and define mitigations before proceeding.",owner:"DPO + Owner",outputs:"Completed DPIA with mitigations and residual risk.",mini:"Purpose, necessity/proportionality, risks, mitigations, consultation."},
-      I:{title:"I — DPO provides advice and review",purpose:"Independent advice and review.",owner:"DPO",outputs:"Documented advice and required mitigations.",mini:"Consult early; maintain independence."},
-      J:{title:"J — Data Committee decision",purpose:"Approve, approve with conditions, pause/redesign, or escalate.",owner:"Data Committee (Chair: Chief of Staff)",outputs:"Decision record; action list; owners and timeline.",mini:"Minutes + rationale + follow-up tracking."},
+      I:{title:"I — DPO review",purpose:"Independent advice and review.",owner:"DPO",outputs:"Documented advice and required mitigations.",mini:"Consult early; maintain independence."},
+      J:{title:"J — Committee decision",purpose:"Approve, approve with conditions, pause/redesign, or escalate.",owner:"Data Committee (Chair: Chief of Staff)",outputs:"Decision record; action list; owners and timeline.",mini:"Minutes + rationale + follow-up tracking."},
       K:{title:"K — Implement controls",purpose:"Put technical/operational/legal controls in place.",owner:"IT Lead + DPO + Owner",outputs:"DPAs/SCCs, notices, access controls, SOPs.",mini:"Least privilege, encryption, audit logs, retention controls."},
-      L:{title:"L — Implement and verify conditions",purpose:"Meet approval conditions and verify before go-live.",owner:"Chief of Staff + IT/DPO",outputs:"Condition checklist completed; evidence stored.",mini:"Examples: vendor security review, SCCs signed, DPIA mitigations implemented."},
-      M:{title:"M — Redesign and re-screen",purpose:"Change approach to reduce risk, then re-screen.",owner:"Owner + IT Lead + DPO",outputs:"Revised design; updated screening/DPIA.",mini:"Reduce fields, anonymise/pseudonymise, change hosting region, shorten retention."},
-      N:{title:"N — SLT decision and resource allocation",purpose:"Escalate high residual risk/material trade-offs for leadership decision.",owner:"SLT sponsor + Chief of Staff",outputs:"SLT decision; resource allocation; risk acceptance if applicable.",mini:"Use when mitigation cost/timeline/impact is significant."},
+      L:{title:"L — Verify conditions",purpose:"Meet approval conditions and verify before go-live.",owner:"Chief of Staff + IT/DPO",outputs:"Condition checklist completed; evidence stored.",mini:"Vendor review, SCCs signed, DPIA mitigations implemented."},
+      M:{title:"M — Redesign and re-screen",purpose:"Change approach to reduce risk, then re-screen.",owner:"Owner + IT Lead + DPO",outputs:"Revised design; updated screening/DPIA.",mini:"Minimise fields, anonymise, change region, shorten retention."},
+      N:{title:"N — SLT decision",purpose:"Escalate high residual risk/material trade-offs for leadership decision.",owner:"SLT sponsor + Chief of Staff",outputs:"SLT decision; resource allocation; risk acceptance if applicable.",mini:"Used when risk/cost/impact is significant."},
       O:{title:"O — Monitor and maintain",purpose:"Ongoing monitoring, audits, training and client comms as needed.",owner:"IT + HR + CKO + DPO",outputs:"Audit logs, training refresh, policy updates, comms packs.",mini:"Build checks into renewals and project close-out."},
       P:{title:"P — Quarterly reporting",purpose:"Report metrics and risk posture to SLT.",owner:"Chief of Staff + DPO",outputs:"Quarterly dashboard: RoPA, DPIAs, incidents, vendors, training.",mini:"Use to prioritise roadmap and resourcing."}
     };
@@ -279,31 +266,28 @@ class A,B,D,E,G,H,I,K,L,M,N,O,P step;
     function tagSvgNodesWithKeys(svg) {
       const validKeys = new Set(Object.keys(NODE_INFO));
       const nodes = Array.from(svg.querySelectorAll("g.node"));
-
       nodes.forEach((g) => {
-        const titleEl = g.querySelector("title");
-        const title = titleEl ? titleEl.textContent.trim() : "";
-
-        const dataId = (g.getAttribute("data-id") || "").trim();
-
+        const title = (g.querySelector("title")?.textContent || "").trim();
         const rawId = (g.getAttribute("id") || "").trim();
         const idMatch = rawId.match(/flowchart-([A-Za-z0-9_]+)-/);
-
         const firstText = (g.querySelector("text")?.textContent || "").trim();
 
-        const candidates = [dataId, title, idMatch ? idMatch[1] : "", firstText].map(s => (s || "").trim());
-        let key = candidates.find(c => validKeys.has(c));
+        const candidates = [
+          (g.getAttribute("data-id") || "").trim(),
+          title,
+          idMatch ? idMatch[1] : "",
+          firstText
+        ].map(s => (s || "").trim());
 
+        let key = candidates.find(c => validKeys.has(c));
         if (!key && title) {
           const tok = title.split(/\s|—|-/)[0].trim();
           if (validKeys.has(tok)) key = tok;
         }
-
         if (!key && idMatch && idMatch[1]) {
           const tok = idMatch[1].charAt(0);
           if (validKeys.has(tok)) key = tok;
         }
-
         if (key) g.dataset.nodekey = key;
       });
     }
@@ -320,24 +304,31 @@ class A,B,D,E,G,H,I,K,L,M,N,O,P step;
 
     window.addEventListener("load", async () => {
       try {
-        // If these are undefined, your vendor files are missing or paths are wrong
         if (typeof mermaid === "undefined") {
-          showError("mermaid is undefined. Check that ./vendor/mermaid.min.js exists and is committed to GitHub Pages.");
+          showError("mermaid is undefined. Check ./vendor/mermaid.min.js is present and loaded.");
           return;
         }
         if (typeof svgPanZoom === "undefined") {
-          showError("svgPanZoom is undefined. Check that ./vendor/svg-pan-zoom.min.js exists and is committed to GitHub Pages.");
+          showError("svgPanZoom is undefined. Check ./vendor/svg-pan-zoom.min.js is present and loaded.");
           return;
         }
 
         statusEl.textContent = "Rendering…";
 
         mermaid.initialize({ startOnLoad:false, securityLevel:"loose", theme:"dark" });
+
+        // Parse first so we get a real error message if Mermaid chokes
+        const src = document.getElementById("diagram").textContent;
+        try { mermaid.parse(src); } catch (e) {
+          showError("Mermaid parse error:\n\n" + (e && e.message ? e.message : String(e)));
+          return;
+        }
+
         await mermaid.run({ querySelector: ".mermaid" });
 
         const svg = document.querySelector("#diagramWrap svg");
         if(!svg){
-          showError("Mermaid did not produce an SVG. If you are on a GitHub blob/raw link, switch to the GitHub Pages URL.");
+          showError("Mermaid did not produce an SVG. Ensure you're viewing the GitHub Pages URL, not a blob/raw link.");
           return;
         }
 
