@@ -130,7 +130,7 @@
     /* Make nodes feel clickable */
     #diagramWrap svg g.node { cursor:pointer; }
 
-    /* Preserve line breaks in the source before render */
+    /* Preserve newlines for Mermaid input */
     pre.mermaid{ margin:0; padding:0; white-space:pre; }
 
     @media (max-width:900px){
@@ -155,24 +155,34 @@
       <div id="diagramWrap">
         <pre class="mermaid" id="diagram">
 flowchart TD
-A[Trigger: new project, new vendor, material change, incident] --> B[Data screening intake]
-B --> C{Personal data involved?}
-C -->|No| D[Record rationale; proceed with standard controls]
-C -->|Yes| E[Assign accountable role owner]
-E --> F{High risk likely?: DPIA screening}
-F -->|No| G[Update RoPA; apply baseline controls; proceed]
-F -->|Yes| H[Conduct DPIA]
-H --> I[DPO provides advice & review]
-I --> J{Data Committee decision}
-J -->|Approve| K[Implement controls, notices, contracts]
-J -->|Approve with conditions| L[Implement + verify conditions]
-J -->|Pause/Redesign| M[Redesign processing; re-screen]
-J -->|Escalate| N[SLT decision & resource allocation]
-K --> O[Monitor, audit, train, client comms as needed]
+
+A["Trigger: new project, new vendor, material change, incident"] --> B["Data screening intake"]
+
+B --> C{"Personal data involved?"}
+
+C -->|No| D["Record rationale and proceed with standard controls"]
+C -->|Yes| E["Assign accountable role owner"]
+
+E --> F{"High risk likely - DPIA screening"}
+
+F -->|No| G["Update RoPA and apply baseline controls"]
+F -->|Yes| H["Conduct DPIA"]
+
+H --> I["DPO provides advice and review"]
+
+I --> J{"Data Committee decision"}
+
+J -->|Approve| K["Implement controls, notices and contracts"]
+J -->|Approve with conditions| L["Implement and verify conditions"]
+J -->|Pause redesign| M["Redesign processing and re-screen"]
+J -->|Escalate| N["SLT decision and resource allocation"]
+
+K --> O["Monitor, audit, train and communicate"]
 L --> O
 M --> F
 N --> O
-O --> P[Quarterly metrics & risk reporting to SLT]
+
+O --> P["Quarterly metrics and risk reporting to SLT"]
 
 %% Styling
 classDef decision fill:#1b1b26,stroke:#8b8bb8,color:#f2f2f7,stroke-width:1px;
@@ -212,24 +222,26 @@ class A,B,D,E,G,H,I,K,L,M,N,O,P step;
   </div>
 
   <script>
-    // ---------- Node details ----------
+    /**********************
+     * Node details
+     **********************/
     const NODE_INFO = {
       A:{title:"A — Trigger",purpose:"Start the governance workflow when something changes or risk emerges.",owner:"Chief of Staff + Requesting lead",outputs:"Logged trigger; intake created.",mini:"Examples: new client project, new vendor/tool, material change, incident."},
       B:{title:"B — Data screening intake",purpose:"Capture minimum required info to route the request correctly.",owner:"Chief of Staff + DPO",outputs:"Completed intake; initial classification.",mini:"Who/what/why/where/retention; link to project/vendor request."},
       C:{title:"C — Personal data involved?",purpose:"Decide whether GDPR/people-data controls apply.",owner:"DPO",outputs:"Decision (Yes/No) recorded with rationale.",mini:"If uncertain, treat as personal data until clarified."},
       D:{title:"D — Standard controls",purpose:"Proceed with baseline controls and keep an audit trail.",owner:"IT Lead + CKO",outputs:"Rationale note; baseline security controls applied.",mini:"Least privilege, secure storage, access control."},
       E:{title:"E — Assign accountable owner",purpose:"Name a single accountable owner for the processing activity.",owner:"Chief of Staff",outputs:"Owner recorded; delivery team confirmed.",mini:"Usually the project lead or functional owner (HR/BD/M&E)."},
-      F:{title:"F — High risk likely?: DPIA screening",purpose:"Determine whether a DPIA is required/recommended.",owner:"DPO + IT Lead",outputs:"DPIA screening result logged.",mini:"Triggers: special category data, vulnerable groups, new tech, large scale, cross-border transfers."},
-      G:{title:"G — Update RoPA & proceed",purpose:"Record the activity and apply baseline protections.",owner:"DPO + IT Lead + Owner",outputs:"RoPA updated; baseline controls checklist completed.",mini:"Lawful basis, retention, access, vendor terms, notices."},
+      F:{title:"F — High risk likely - DPIA screening",purpose:"Determine whether a DPIA is required/recommended.",owner:"DPO + IT Lead",outputs:"DPIA screening result logged.",mini:"Triggers: special category data, vulnerable groups, new tech, large scale, cross-border transfers."},
+      G:{title:"G — Update RoPA and proceed",purpose:"Record the activity and apply baseline protections.",owner:"DPO + IT Lead + Owner",outputs:"RoPA updated; baseline controls checklist completed.",mini:"Lawful basis, retention, access, vendor terms, notices."},
       H:{title:"H — Conduct DPIA",purpose:"Assess privacy risks and define mitigations before proceeding.",owner:"DPO + Owner",outputs:"Completed DPIA with mitigations and residual risk.",mini:"Purpose, necessity/proportionality, risks, mitigations, consultation."},
-      I:{title:"I — DPO provides advice & review",purpose:"Independent advice and review.",owner:"DPO",outputs:"Documented advice and required mitigations.",mini:"Consult early; maintain independence."},
+      I:{title:"I — DPO provides advice and review",purpose:"Independent advice and review.",owner:"DPO",outputs:"Documented advice and required mitigations.",mini:"Consult early; maintain independence."},
       J:{title:"J — Data Committee decision",purpose:"Approve, approve with conditions, pause/redesign, or escalate.",owner:"Data Committee (Chair: Chief of Staff)",outputs:"Decision record; action list; owners and timeline.",mini:"Minutes + rationale + follow-up tracking."},
-      K:{title:"K — Implement controls, notices, contracts",purpose:"Put technical/operational/legal controls in place.",owner:"IT Lead + DPO + Owner",outputs:"DPAs/SCCs, notices, access controls, SOPs.",mini:"Least privilege, encryption, audit logs, retention controls."},
-      L:{title:"L — Implement + verify conditions",purpose:"Meet approval conditions and verify before go-live.",owner:"Chief of Staff + IT/DPO",outputs:"Condition checklist completed; evidence stored.",mini:"Examples: vendor security review, SCCs signed, DPIA mitigations implemented."},
-      M:{title:"M — Redesign processing; re-screen",purpose:"Change approach to reduce risk, then re-screen.",owner:"Owner + IT Lead + DPO",outputs:"Revised design; updated screening/DPIA.",mini:"Reduce fields, anonymise/pseudonymise, change hosting region, shorten retention."},
-      N:{title:"N — SLT decision & resource allocation",purpose:"Escalate high residual risk/material trade-offs for leadership decision.",owner:"SLT sponsor + Chief of Staff",outputs:"SLT decision; resource allocation; risk acceptance if applicable.",mini:"Use when mitigation cost/timeline/impact is significant."},
-      O:{title:"O — Monitor, audit, train, client comms",purpose:"Ongoing monitoring, audits, training and client comms as needed.",owner:"IT + HR + CKO + DPO",outputs:"Audit logs, training refresh, policy updates, comms packs.",mini:"Build checks into renewals and project close-out."},
-      P:{title:"P — Quarterly metrics & risk reporting",purpose:"Report metrics and risk posture to SLT.",owner:"Chief of Staff + DPO",outputs:"Quarterly dashboard: RoPA, DPIAs, incidents, vendors, training.",mini:"Use to prioritise roadmap and resourcing."}
+      K:{title:"K — Implement controls",purpose:"Put technical/operational/legal controls in place.",owner:"IT Lead + DPO + Owner",outputs:"DPAs/SCCs, notices, access controls, SOPs.",mini:"Least privilege, encryption, audit logs, retention controls."},
+      L:{title:"L — Implement and verify conditions",purpose:"Meet approval conditions and verify before go-live.",owner:"Chief of Staff + IT/DPO",outputs:"Condition checklist completed; evidence stored.",mini:"Examples: vendor security review, SCCs signed, DPIA mitigations implemented."},
+      M:{title:"M — Redesign and re-screen",purpose:"Change approach to reduce risk, then re-screen.",owner:"Owner + IT Lead + DPO",outputs:"Revised design; updated screening/DPIA.",mini:"Reduce fields, anonymise/pseudonymise, change hosting region, shorten retention."},
+      N:{title:"N — SLT decision and resource allocation",purpose:"Escalate high residual risk/material trade-offs for leadership decision.",owner:"SLT sponsor + Chief of Staff",outputs:"SLT decision; resource allocation; risk acceptance if applicable.",mini:"Use when mitigation cost/timeline/impact is significant."},
+      O:{title:"O — Monitor and maintain",purpose:"Ongoing monitoring, audits, training and client comms as needed.",owner:"IT + HR + CKO + DPO",outputs:"Audit logs, training refresh, policy updates, comms packs.",mini:"Build checks into renewals and project close-out."},
+      P:{title:"P — Quarterly reporting",purpose:"Report metrics and risk posture to SLT.",owner:"Chief of Staff + DPO",outputs:"Quarterly dashboard: RoPA, DPIAs, incidents, vendors, training.",mini:"Use to prioritise roadmap and resourcing."}
     };
 
     function showNode(id){
@@ -247,15 +259,19 @@ class A,B,D,E,G,H,I,K,L,M,N,O,P step;
       box.textContent = msg;
     }
 
-    // ---------- CDN loader with fallback ----------
+    /**********************
+     * Load scripts with fallback
+     **********************/
     function loadScript(src, fallback){
       return new Promise((resolve, reject) => {
         const s = document.createElement("script");
-        s.src = src; s.async = true;
+        s.src = src;
+        s.async = true;
         s.onload = () => resolve();
         s.onerror = () => {
           const f = document.createElement("script");
-          f.src = fallback; f.async = true;
+          f.src = fallback;
+          f.async = true;
           f.onload = () => resolve();
           f.onerror = () => reject(new Error("Failed to load: " + src + " and fallback: " + fallback));
           document.head.appendChild(f);
@@ -264,16 +280,57 @@ class A,B,D,E,G,H,I,K,L,M,N,O,P step;
       });
     }
 
-    // ---------- Identify Mermaid node IDs from SVG ----------
-    function extractNodeIdFromGroup(g){
-      // Prefer Mermaid's data-id if present
-      const dataId = g.getAttribute("data-id");
-      if (dataId) return dataId;
+    /**********************
+     * Robust click mapping: tag nodes once after render
+     **********************/
+    function tagSvgNodesWithKeys(svg) {
+      const validKeys = new Set(Object.keys(NODE_INFO));
+      const nodes = Array.from(svg.querySelectorAll("g.node"));
 
-      // Otherwise parse IDs like: flowchart-A-0 / flowchart-C-1 etc
-      const raw = g.getAttribute("id") || "";
-      const m = raw.match(/flowchart-([A-Za-z0-9_]+)-/);
-      return m ? m[1] : null;
+      nodes.forEach((g) => {
+        const titleEl = g.querySelector("title");
+        const title = titleEl ? titleEl.textContent.trim() : "";
+
+        const dataId = (g.getAttribute("data-id") || "").trim();
+
+        const rawId = (g.getAttribute("id") || "").trim();
+        const idMatch = rawId.match(/flowchart-([A-Za-z0-9_]+)-/);
+
+        const firstText = (g.querySelector("text")?.textContent || "").trim();
+
+        const candidates = [
+          dataId,
+          title,
+          idMatch ? idMatch[1] : "",
+          firstText
+        ].map(s => (s || "").trim());
+
+        let key = candidates.find(c => validKeys.has(c));
+
+        if (!key && title) {
+          const tok = title.split(/\\s|—|-/)[0].trim();
+          if (validKeys.has(tok)) key = tok;
+        }
+
+        if (!key && idMatch && idMatch[1]) {
+          const tok = idMatch[1].charAt(0);
+          if (validKeys.has(tok)) key = tok;
+        }
+
+        if (key) g.dataset.nodekey = key;
+      });
+    }
+
+    function attachUniversalNodeClick(svg) {
+      tagSvgNodesWithKeys(svg);
+
+      svg.addEventListener("click", (evt) => {
+        const nodeGroup = evt.target.closest("g.node");
+        if (!nodeGroup) return;
+
+        const key = nodeGroup.dataset.nodekey;
+        if (key && NODE_INFO[key]) showNode(key);
+      });
     }
 
     async function init(){
@@ -295,13 +352,13 @@ class A,B,D,E,G,H,I,K,L,M,N,O,P step;
           showError(
             "Mermaid did not produce an SVG.\n\n" +
             "Common causes:\n" +
-            "• You are viewing a non-executing preview (GitHub blob / Notion code block).\n" +
-            "• CDN is blocked by your network."
+            "• Viewing a non-executing preview (GitHub blob / Notion code block)\n" +
+            "• CDN blocked by your network\n\n" +
+            "Use GitHub Pages URL (username.github.io/repo/) and /embed that in Notion."
           );
           return;
         }
 
-        // Pan/zoom
         const panZoom = svgPanZoom(svg, {
           zoomEnabled:true,
           controlIconsEnabled:false,
@@ -315,15 +372,7 @@ class A,B,D,E,G,H,I,K,L,M,N,O,P step;
         document.getElementById("zoomOut").addEventListener("click", ()=>panZoom.zoomBy(0.8));
         document.getElementById("reset").addEventListener("click", ()=>{ panZoom.resetZoom(); panZoom.center(); panZoom.fit(); });
 
-        // ✅ Robust click handling for ALL nodes (event delegation)
-        svg.addEventListener("click", (evt) => {
-          const nodeGroup = evt.target.closest("g.node");
-          if (!nodeGroup) return;
-
-          const nodeId = extractNodeIdFromGroup(nodeGroup);
-          if (nodeId && NODE_INFO[nodeId]) showNode(nodeId);
-        });
-
+        attachUniversalNodeClick(svg);
         showNode("A");
       }catch(e){
         showError("Failed to initialize diagram.\n\nError:\n" + (e && e.message ? e.message : String(e)));
