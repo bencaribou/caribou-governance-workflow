@@ -140,15 +140,13 @@
     #diagramWrap svg{ width:100%; height:100%; }
     #diagramWrap svg g.node { cursor:pointer; }
 
-    pre.mermaid{ margin:0; padding:0; white-space:pre; }
-
     @media (max-width:900px){
       .wrap{ grid-template-columns:1fr; }
       .panel{ min-height:260px; }
     }
   </style>
 
-  <!-- Local vendor scripts -->
+  <!-- Local vendor scripts (required) -->
   <script src="./vendor/mermaid.min.js"></script>
   <script src="./vendor/svg-pan-zoom.min.js"></script>
 </head>
@@ -166,35 +164,8 @@
       <div class="status" id="status">Loading…</div>
       <div class="error" id="errBox"></div>
 
-      <div id="diagramWrap">
-        <pre class="mermaid" id="diagram">
-flowchart TD
-A["Trigger: new project, new vendor, material change, incident"] --> B["Data screening intake"]
-B --> C{Personal data involved?}
-C -->|No| D["Record rationale and proceed with standard controls"]
-C -->|Yes| E["Assign accountable role owner"]
-E --> F{High risk likely - DPIA screening}
-F -->|No| G["Update RoPA and apply baseline controls"]
-F -->|Yes| H["Conduct DPIA"]
-H --> I["DPO provides advice and review"]
-I --> J{Data Committee decision}
-J -->|Approve| K["Implement controls, notices and contracts"]
-J -->|Approve with conditions| L["Implement and verify conditions"]
-J -->|Pause redesign| M["Redesign processing and re-screen"]
-J -->|Escalate| N["SLT decision and resource allocation"]
-K --> O["Monitor, audit, train and communicate"]
-L --> O
-M --> F
-N --> O
-O --> P["Quarterly metrics and risk reporting to SLT"]
-
-%% Styling
-classDef decision fill:#1b1b26,stroke:#8b8bb8,color:#f2f2f7,stroke-width:1px;
-classDef step fill:#14141f,stroke:#6d6d97,color:#f2f2f7,stroke-width:1px;
-class C,F,J decision;
-class A,B,D,E,G,H,I,K,L,M,N,O,P step;
-        </pre>
-      </div>
+      <!-- Mermaid will render SVG directly into this div -->
+      <div id="diagramWrap"></div>
     </div>
 
     <aside class="panel">
@@ -266,6 +237,7 @@ class A,B,D,E,G,H,I,K,L,M,N,O,P step;
     function tagSvgNodesWithKeys(svg) {
       const validKeys = new Set(Object.keys(NODE_INFO));
       const nodes = Array.from(svg.querySelectorAll("g.node"));
+
       nodes.forEach((g) => {
         const title = (g.querySelector("title")?.textContent || "").trim();
         const rawId = (g.getAttribute("id") || "").trim();
@@ -280,6 +252,7 @@ class A,B,D,E,G,H,I,K,L,M,N,O,P step;
         ].map(s => (s || "").trim());
 
         let key = candidates.find(c => validKeys.has(c));
+
         if (!key && title) {
           const tok = title.split(/\s|—|-/)[0].trim();
           if (validKeys.has(tok)) key = tok;
@@ -288,6 +261,7 @@ class A,B,D,E,G,H,I,K,L,M,N,O,P step;
           const tok = idMatch[1].charAt(0);
           if (validKeys.has(tok)) key = tok;
         }
+
         if (key) g.dataset.nodekey = key;
       });
     }
@@ -305,36 +279,64 @@ class A,B,D,E,G,H,I,K,L,M,N,O,P step;
     window.addEventListener("load", async () => {
       try {
         if (typeof mermaid === "undefined") {
-          showError("mermaid is undefined. Check ./vendor/mermaid.min.js is present and loaded.");
+          showError("mermaid is undefined. Check ./vendor/mermaid.min.js exists and is loading.");
           return;
         }
         if (typeof svgPanZoom === "undefined") {
-          showError("svgPanZoom is undefined. Check ./vendor/svg-pan-zoom.min.js is present and loaded.");
+          showError("svgPanZoom is undefined. Check ./vendor/svg-pan-zoom.min.js exists and is loading.");
           return;
         }
+
+        // Mermaid source is defined here (NOT read from HTML)
+        const graph = [
+          "flowchart TD",
+          "A[\"Trigger: new project, new vendor, material change, incident\"] --> B[\"Data screening intake\"]",
+          "B --> C{Personal data involved?}",
+          "C -->|No| D[\"Record rationale and proceed with standard controls\"]",
+          "C -->|Yes| E[\"Assign accountable role owner\"]",
+          "E --> F{High risk likely - DPIA screening}",
+          "F -->|No| G[\"Update RoPA and apply baseline controls\"]",
+          "F -->|Yes| H[\"Conduct DPIA\"]",
+          "H --> I[\"DPO provides advice and review\"]",
+          "I --> J{Data Committee decision}",
+          "J -->|Approve| K[\"Implement controls, notices and contracts\"]",
+          "J -->|Approve with conditions| L[\"Implement and verify conditions\"]",
+          "J -->|Pause redesign| M[\"Redesign processing and re-screen\"]",
+          "J -->|Escalate| N[\"SLT decision and resource allocation\"]",
+          "K --> O[\"Monitor, audit, train and communicate\"]",
+          "L --> O",
+          "M --> F",
+          "N --> O",
+          "O --> P[\"Quarterly metrics and risk reporting to SLT\"]",
+          "",
+          "%% Styling",
+          "classDef decision fill:#1b1b26,stroke:#8b8bb8,color:#f2f2f7,stroke-width:1px;",
+          "classDef step fill:#14141f,stroke:#6d6d97,color:#f2f2f7,stroke-width:1px;",
+          "class C,F,J decision;",
+          "class A,B,D,E,G,H,I,K,L,M,N,O,P step;"
+        ].join("\n");
 
         statusEl.textContent = "Rendering…";
 
         mermaid.initialize({ startOnLoad:false, securityLevel:"loose", theme:"dark" });
 
-        // Parse first so we get a real error message if Mermaid chokes
-        const src = document.getElementById("diagram").textContent;
-        try { mermaid.parse(src); } catch (e) {
-          showError("Mermaid parse error:\n\n" + (e && e.message ? e.message : String(e)));
-          return;
-        }
+        // Hard parse check (this will throw if anything is wrong)
+        mermaid.parse(graph);
 
-        await mermaid.run({ querySelector: ".mermaid" });
+        // Render to SVG string and inject into DOM
+        const { svg } = await mermaid.render("mmd-graph", graph);
+        const wrap = document.getElementById("diagramWrap");
+        wrap.innerHTML = svg;
 
-        const svg = document.querySelector("#diagramWrap svg");
-        if(!svg){
-          showError("Mermaid did not produce an SVG. Ensure you're viewing the GitHub Pages URL, not a blob/raw link.");
+        const svgEl = wrap.querySelector("svg");
+        if (!svgEl) {
+          showError("Mermaid did not produce an SVG element.");
           return;
         }
 
         statusEl.style.display = "none";
 
-        const panZoom = svgPanZoom(svg, {
+        const panZoom = svgPanZoom(svgEl, {
           zoomEnabled:true,
           controlIconsEnabled:false,
           fit:true,
@@ -347,7 +349,7 @@ class A,B,D,E,G,H,I,K,L,M,N,O,P step;
         document.getElementById("zoomOut").addEventListener("click", ()=>panZoom.zoomBy(0.8));
         document.getElementById("reset").addEventListener("click", ()=>{ panZoom.resetZoom(); panZoom.center(); panZoom.fit(); });
 
-        attachUniversalNodeClick(svg);
+        attachUniversalNodeClick(svgEl);
         showNode("A");
       } catch (e) {
         showError("Failed to initialize diagram.\n\nError:\n" + (e && e.message ? e.message : String(e)));
