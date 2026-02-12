@@ -18,13 +18,7 @@
       --sans:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;
     }
 
-    html,body{
-      height:100%;
-      margin:0;
-      background:var(--bg);
-      color:var(--text);
-      font-family:var(--sans);
-    }
+    html,body{ height:100%; margin:0; background:var(--bg); color:var(--text); font-family:var(--sans); }
 
     .wrap{
       height:100%;
@@ -47,10 +41,8 @@
 
     .toolbar{
       position:absolute;
-      top:10px;
-      left:10px;
-      display:flex;
-      gap:8px;
+      top:10px; left:10px;
+      display:flex; gap:8px;
       z-index:3;
     }
 
@@ -68,8 +60,7 @@
 
     .hint{
       position:absolute;
-      bottom:10px;
-      left:10px;
+      bottom:10px; left:10px;
       font-size:12px;
       color:var(--muted);
       z-index:3;
@@ -82,16 +73,13 @@
 
     .error{
       position:absolute;
-      top:56px;
-      left:10px;
-      right:10px;
+      top:56px; left:10px; right:10px;
       z-index:4;
       padding:10px 12px;
       border:1px solid rgba(255,80,80,.35);
       background:rgba(255,80,80,.10);
       border-radius:12px;
       font-size:12px;
-      color:var(--text);
       display:none;
       white-space:pre-wrap;
     }
@@ -106,17 +94,8 @@
       min-height:520px;
     }
 
-    .panel h2{
-      margin:0 0 6px 0;
-      font-size:16px;
-    }
-
-    .panel .sub{
-      color:var(--muted);
-      font-size:12px;
-      margin-bottom:12px;
-      line-height:1.35;
-    }
+    .panel h2{ margin:0 0 6px 0; font-size:16px; }
+    .panel .sub{ color:var(--muted); font-size:12px; margin-bottom:12px; line-height:1.35; }
 
     .card{
       border:1px solid var(--border);
@@ -133,10 +112,7 @@
       margin-bottom:6px;
     }
 
-    .value{
-      font-size:13px;
-      line-height:1.4;
-    }
+    .value{ font-size:13px; line-height:1.4; }
 
     .mini{
       margin-top:10px;
@@ -148,14 +124,15 @@
       padding-top:10px;
     }
 
-    /* Mermaid container should fill stage */
-    #diagram{
-      width:100%;
-      height:100%;
-    }
-    #diagram svg{
-      width:100%;
-      height:100%;
+    /* Mermaid container fill */
+    #diagramWrap{ width:100%; height:100%; }
+    #diagramWrap svg{ width:100%; height:100%; }
+
+    /* Important: keep the diagram text hidden AFTER render */
+    pre.mermaid{
+      margin:0;
+      padding:0;
+      white-space:pre; /* preserve newlines exactly */
     }
 
     @media (max-width:900px){
@@ -177,14 +154,14 @@
       <div class="hint">Tip: Scroll/trackpad to zoom • Click a node to see details</div>
       <div class="error" id="errBox"></div>
 
-      <!-- Mermaid parses the text inside elements with class="mermaid" -->
-      <div class="mermaid" id="diagram">
+      <div id="diagramWrap">
+        <pre class="mermaid" id="diagram">
 flowchart TD
 A[Trigger: new project, new vendor, material change, incident] --> B[Data screening intake]
 B --> C{Personal data involved?}
 C -->|No| D[Record rationale; proceed with standard controls]
 C -->|Yes| E[Assign accountable role owner]
-E --> F{High risk likely? (DPIA screening)}
+E --> F{High risk likely?: DPIA screening}
 F -->|No| G[Update RoPA; apply baseline controls; proceed]
 F -->|Yes| H[Conduct DPIA]
 H --> I[DPO provides advice & review]
@@ -222,14 +199,13 @@ click M call showNode("M") "Show details"
 click N call showNode("N") "Show details"
 click O call showNode("O") "Show details"
 click P call showNode("P") "Show details"
+        </pre>
       </div>
     </div>
 
     <aside class="panel">
       <h2>Governance workflow</h2>
-      <div class="sub">
-        Click any node in the diagram to see what it means, what gets produced, and who typically leads it.
-      </div>
+      <div class="sub">Click any node to see what it means, what gets produced, and who typically leads it.</div>
 
       <div class="card">
         <div class="label">Selected step</div>
@@ -256,16 +232,14 @@ click P call showNode("P") "Show details"
   </div>
 
   <script>
-    /***************
-     * 1) Node details + click handler (must exist BEFORE Mermaid renders)
-     ***************/
+    // -------- Node details + click handler (must exist BEFORE Mermaid renders) --------
     const NODE_INFO = {
       A:{title:"A — Trigger",purpose:"Start the governance workflow when something changes or risk emerges.",owner:"Chief of Staff + Requesting lead",outputs:"Logged trigger; intake created.",mini:"Examples: new client project, new vendor/tool, material change, incident."},
       B:{title:"B — Data screening intake",purpose:"Capture minimum required info to route the request correctly.",owner:"Chief of Staff + DPO",outputs:"Completed intake; initial classification.",mini:"Who/what/why/where/retention; link to project/vendor request."},
       C:{title:"C — Personal data involved?",purpose:"Decide whether GDPR/people-data controls apply.",owner:"DPO",outputs:"Decision (Yes/No) recorded with rationale.",mini:"If uncertain, treat as personal data until clarified."},
       D:{title:"D — Standard controls",purpose:"Proceed with baseline controls and keep an audit trail.",owner:"IT Lead + CKO",outputs:"Rationale note; baseline security controls applied.",mini:"Least privilege, secure storage, access control."},
       E:{title:"E — Assign accountable owner",purpose:"Name a single accountable owner for the processing activity.",owner:"Chief of Staff",outputs:"Owner recorded; delivery team confirmed.",mini:"Usually the project lead or functional owner (HR/BD/M&E)."},
-      F:{title:"F — High risk likely? (DPIA screening)",purpose:"Determine whether a DPIA is required/recommended.",owner:"DPO + IT Lead",outputs:"DPIA screening result logged.",mini:"Triggers: special category data, vulnerable groups, new tech, large scale, cross-border transfers."},
+      F:{title:"F — High risk likely?: DPIA screening",purpose:"Determine whether a DPIA is required/recommended.",owner:"DPO + IT Lead",outputs:"DPIA screening result logged.",mini:"Triggers: special category data, vulnerable groups, new tech, large scale, cross-border transfers."},
       G:{title:"G — Update RoPA & proceed",purpose:"Record the activity and apply baseline protections.",owner:"DPO + IT Lead + Owner",outputs:"RoPA updated; baseline controls checklist completed.",mini:"Lawful basis, retention, access, vendor terms, notices."},
       H:{title:"H — Conduct DPIA",purpose:"Assess privacy risks and define mitigations before proceeding.",owner:"DPO + Owner",outputs:"Completed DPIA with mitigations and residual risk.",mini:"Purpose, necessity/proportionality, risks, mitigations, consultation."},
       I:{title:"I — DPO provides advice & review",purpose:"Independent advice and review.",owner:"DPO",outputs:"Documented advice and required mitigations.",mini:"Consult early; maintain independence."},
@@ -273,7 +247,7 @@ click P call showNode("P") "Show details"
       K:{title:"K — Implement controls, notices, contracts",purpose:"Put technical/operational/legal controls in place.",owner:"IT Lead + DPO + Owner",outputs:"DPAs/SCCs, notices, access controls, SOPs.",mini:"Least privilege, encryption, audit logs, retention controls."},
       L:{title:"L — Implement + verify conditions",purpose:"Meet approval conditions and verify before go-live.",owner:"Chief of Staff + IT/DPO",outputs:"Condition checklist completed; evidence stored.",mini:"Examples: vendor security review, SCCs signed, DPIA mitigations implemented."},
       M:{title:"M — Redesign processing; re-screen",purpose:"Change approach to reduce risk, then re-screen.",owner:"Owner + IT Lead + DPO",outputs:"Revised design; updated screening/DPIA.",mini:"Reduce fields, anonymise/pseudonymise, change hosting region, shorten retention."},
-      N:{title:"N — SLT decision & resourcing",purpose:"Escalate high residual risk/material trade-offs for leadership decision.",owner:"SLT sponsor + Chief of Staff",outputs:"SLT decision; resource allocation; risk acceptance if applicable.",mini:"Use when mitigation cost/timeline/impact is significant."},
+      N:{title:"N — SLT decision & resource allocation",purpose:"Escalate high residual risk/material trade-offs for leadership decision.",owner:"SLT sponsor + Chief of Staff",outputs:"SLT decision; resource allocation; risk acceptance if applicable.",mini:"Use when mitigation cost/timeline/impact is significant."},
       O:{title:"O — Monitor, audit, train, client comms",purpose:"Ongoing monitoring, audits, training and client comms as needed.",owner:"IT + HR + CKO + DPO",outputs:"Audit logs, training refresh, policy updates, comms packs.",mini:"Build checks into renewals and project close-out."},
       P:{title:"P — Quarterly metrics & risk reporting",purpose:"Report metrics and risk posture to SLT.",owner:"Chief of Staff + DPO",outputs:"Quarterly dashboard: RoPA, DPIAs, incidents, vendors, training.",mini:"Use to prioritise roadmap and resourcing."}
     };
@@ -294,19 +268,15 @@ click P call showNode("P") "Show details"
       box.textContent = msg;
     }
 
-    /***************
-     * 2) CDN loader with fallback (jsDelivr -> unpkg)
-     ***************/
+    // -------- Load scripts with fallback (jsDelivr -> unpkg) --------
     function loadScript(src, fallback){
       return new Promise((resolve, reject) => {
         const s = document.createElement("script");
-        s.src = src;
-        s.async = true;
+        s.src = src; s.async = true;
         s.onload = () => resolve();
         s.onerror = () => {
           const f = document.createElement("script");
-          f.src = fallback;
-          f.async = true;
+          f.src = fallback; f.async = true;
           f.onload = () => resolve();
           f.onerror = () => reject(new Error("Failed to load: " + src + " and fallback: " + fallback));
           document.head.appendChild(f);
@@ -315,76 +285,51 @@ click P call showNode("P") "Show details"
       });
     }
 
-    /***************
-     * 3) Render Mermaid and attach pan/zoom
-     ***************/
-    async function initDiagram(){
+    async function init(){
       try{
-        // If scripts already loaded via <script src="..."> tags, skip loading.
-        // But if a network blocks them, window.mermaid might be undefined.
-        if (typeof window.mermaid === "undefined"){
-          await loadScript(
-            "https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js",
-            "https://unpkg.com/mermaid@10/dist/mermaid.min.js"
-          );
-        }
-        if (typeof window.svgPanZoom === "undefined"){
-          await loadScript(
-            "https://cdn.jsdelivr.net/npm/svg-pan-zoom@3.6.1/dist/svg-pan-zoom.min.js",
-            "https://unpkg.com/svg-pan-zoom@3.6.1/dist/svg-pan-zoom.min.js"
-          );
-        }
+        await loadScript(
+          "https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js",
+          "https://unpkg.com/mermaid@10/dist/mermaid.min.js"
+        );
+        await loadScript(
+          "https://cdn.jsdelivr.net/npm/svg-pan-zoom@3.6.1/dist/svg-pan-zoom.min.js",
+          "https://unpkg.com/svg-pan-zoom@3.6.1/dist/svg-pan-zoom.min.js"
+        );
 
-        // Configure Mermaid (must be after mermaid loads)
-        window.mermaid.initialize({
-          startOnLoad: false,
-          securityLevel: "loose",
-          theme: "dark"
-        });
+        mermaid.initialize({ startOnLoad:false, securityLevel:"loose", theme:"dark" });
+        await mermaid.run({ querySelector: ".mermaid" });
 
-        // Render ALL .mermaid blocks (most reliable)
-        await window.mermaid.run({ querySelector: ".mermaid" });
-
-        const svg = document.querySelector("#diagram svg");
-        if (!svg){
+        const svg = document.querySelector("#diagramWrap svg");
+        if(!svg){
           showError(
             "Mermaid did not produce an SVG.\n\n" +
-            "Most common causes:\n" +
-            "• You are viewing the file in GitHub 'blob' preview (github.com/.../blob/...). Use GitHub Pages (username.github.io).\n" +
-            "• You pasted HTML into Notion as text (Notion won't run scripts). Use /embed with the GitHub Pages URL.\n" +
-            "• Your network blocks CDNs (jsDelivr/unpkg)."
+            "Common causes:\n" +
+            "• You're viewing a non-executing preview (GitHub blob / Notion code block).\n" +
+            "• CDN is blocked by your network."
           );
           return;
         }
 
-        const panZoom = window.svgPanZoom(svg, {
-          zoomEnabled: true,
-          controlIconsEnabled: false,
-          fit: true,
-          center: true,
-          minZoom: 0.3,
-          maxZoom: 6
+        const panZoom = svgPanZoom(svg, {
+          zoomEnabled:true,
+          controlIconsEnabled:false,
+          fit:true,
+          center:true,
+          minZoom:0.3,
+          maxZoom:6
         });
 
-        document.getElementById("zoomIn").addEventListener("click", () => panZoom.zoomBy(1.2));
-        document.getElementById("zoomOut").addEventListener("click", () => panZoom.zoomBy(0.8));
-        document.getElementById("reset").addEventListener("click", () => {
-          panZoom.resetZoom();
-          panZoom.center();
-          panZoom.fit();
-        });
+        document.getElementById("zoomIn").addEventListener("click", ()=>panZoom.zoomBy(1.2));
+        document.getElementById("zoomOut").addEventListener("click", ()=>panZoom.zoomBy(0.8));
+        document.getElementById("reset").addEventListener("click", ()=>{ panZoom.resetZoom(); panZoom.center(); panZoom.fit(); });
 
-        // Default selection
         showNode("A");
       }catch(e){
-        showError(
-          "Failed to initialize diagram.\n\n" +
-          "Error:\n" + (e && e.message ? e.message : String(e))
-        );
+        showError("Failed to initialize diagram.\n\nError:\n" + (e && e.message ? e.message : String(e)));
       }
     }
 
-    window.addEventListener("load", initDiagram);
+    window.addEventListener("load", init);
   </script>
 </body>
 </html>
