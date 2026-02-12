@@ -124,16 +124,14 @@
       padding-top:10px;
     }
 
-    /* Mermaid container fill */
     #diagramWrap{ width:100%; height:100%; }
     #diagramWrap svg{ width:100%; height:100%; }
 
-    /* Important: keep the diagram text hidden AFTER render */
-    pre.mermaid{
-      margin:0;
-      padding:0;
-      white-space:pre; /* preserve newlines exactly */
-    }
+    /* Make nodes feel clickable */
+    #diagramWrap svg g.node { cursor:pointer; }
+
+    /* Preserve line breaks in the source before render */
+    pre.mermaid{ margin:0; padding:0; white-space:pre; }
 
     @media (max-width:900px){
       .wrap{ grid-template-columns:1fr; }
@@ -151,7 +149,7 @@
         <button class="btn" id="reset" type="button">Reset</button>
       </div>
 
-      <div class="hint">Tip: Scroll/trackpad to zoom • Click a node to see details</div>
+      <div class="hint">Tip: Scroll/trackpad to zoom • Click any node for details</div>
       <div class="error" id="errBox"></div>
 
       <div id="diagramWrap">
@@ -181,24 +179,6 @@ classDef decision fill:#1b1b26,stroke:#8b8bb8,color:#f2f2f7,stroke-width:1px;
 classDef step fill:#14141f,stroke:#6d6d97,color:#f2f2f7,stroke-width:1px;
 class C,F,J decision;
 class A,B,D,E,G,H,I,K,L,M,N,O,P step;
-
-%% Click handlers
-click A call showNode("A") "Show details"
-click B call showNode("B") "Show details"
-click C call showNode("C") "Show details"
-click D call showNode("D") "Show details"
-click E call showNode("E") "Show details"
-click F call showNode("F") "Show details"
-click G call showNode("G") "Show details"
-click H call showNode("H") "Show details"
-click I call showNode("I") "Show details"
-click J call showNode("J") "Show details"
-click K call showNode("K") "Show details"
-click L call showNode("L") "Show details"
-click M call showNode("M") "Show details"
-click N call showNode("N") "Show details"
-click O call showNode("O") "Show details"
-click P call showNode("P") "Show details"
         </pre>
       </div>
     </div>
@@ -232,7 +212,7 @@ click P call showNode("P") "Show details"
   </div>
 
   <script>
-    // -------- Node details + click handler (must exist BEFORE Mermaid renders) --------
+    // ---------- Node details ----------
     const NODE_INFO = {
       A:{title:"A — Trigger",purpose:"Start the governance workflow when something changes or risk emerges.",owner:"Chief of Staff + Requesting lead",outputs:"Logged trigger; intake created.",mini:"Examples: new client project, new vendor/tool, material change, incident."},
       B:{title:"B — Data screening intake",purpose:"Capture minimum required info to route the request correctly.",owner:"Chief of Staff + DPO",outputs:"Completed intake; initial classification.",mini:"Who/what/why/where/retention; link to project/vendor request."},
@@ -260,7 +240,6 @@ click P call showNode("P") "Show details"
       document.getElementById("selOutputs").textContent = info.outputs;
       document.getElementById("selMini").textContent = info.mini || "";
     }
-    window.showNode = showNode;
 
     function showError(msg){
       const box = document.getElementById("errBox");
@@ -268,7 +247,7 @@ click P call showNode("P") "Show details"
       box.textContent = msg;
     }
 
-    // -------- Load scripts with fallback (jsDelivr -> unpkg) --------
+    // ---------- CDN loader with fallback ----------
     function loadScript(src, fallback){
       return new Promise((resolve, reject) => {
         const s = document.createElement("script");
@@ -283,6 +262,18 @@ click P call showNode("P") "Show details"
         };
         document.head.appendChild(s);
       });
+    }
+
+    // ---------- Identify Mermaid node IDs from SVG ----------
+    function extractNodeIdFromGroup(g){
+      // Prefer Mermaid's data-id if present
+      const dataId = g.getAttribute("data-id");
+      if (dataId) return dataId;
+
+      // Otherwise parse IDs like: flowchart-A-0 / flowchart-C-1 etc
+      const raw = g.getAttribute("id") || "";
+      const m = raw.match(/flowchart-([A-Za-z0-9_]+)-/);
+      return m ? m[1] : null;
     }
 
     async function init(){
@@ -304,12 +295,13 @@ click P call showNode("P") "Show details"
           showError(
             "Mermaid did not produce an SVG.\n\n" +
             "Common causes:\n" +
-            "• You're viewing a non-executing preview (GitHub blob / Notion code block).\n" +
+            "• You are viewing a non-executing preview (GitHub blob / Notion code block).\n" +
             "• CDN is blocked by your network."
           );
           return;
         }
 
+        // Pan/zoom
         const panZoom = svgPanZoom(svg, {
           zoomEnabled:true,
           controlIconsEnabled:false,
@@ -322,6 +314,15 @@ click P call showNode("P") "Show details"
         document.getElementById("zoomIn").addEventListener("click", ()=>panZoom.zoomBy(1.2));
         document.getElementById("zoomOut").addEventListener("click", ()=>panZoom.zoomBy(0.8));
         document.getElementById("reset").addEventListener("click", ()=>{ panZoom.resetZoom(); panZoom.center(); panZoom.fit(); });
+
+        // ✅ Robust click handling for ALL nodes (event delegation)
+        svg.addEventListener("click", (evt) => {
+          const nodeGroup = evt.target.closest("g.node");
+          if (!nodeGroup) return;
+
+          const nodeId = extractNodeIdFromGroup(nodeGroup);
+          if (nodeId && NODE_INFO[nodeId]) showNode(nodeId);
+        });
 
         showNode("A");
       }catch(e){
